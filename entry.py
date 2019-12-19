@@ -2,21 +2,34 @@ import D_Polyns as dp
 class entry:
     def __init__(self):
         self.entryList = []
+        self.size = 0
 
-    def append(self, f: dp):
+    def addPolyn(self, f: dp):
         self.entryList.append(f)
+        self.size += 1
+
+    def getWholeEntry(self):
+        return self.entryList
 
     def get(self, i:int):
         return self.entryList[i]
 
+    def getSize(self):
+        return self.size
+
     def isEmpty(self) -> bool:
-        return (len(self.entryList) == 0)
+        return (self.size == 0)
 
     # Need to prove this function is correct
     def renewList(self,f: dp):
+        """
+        scan the whole list and create a new list in order to remove all polyns that is not the best bound
+        :param f:
+        :return:
+        """
         L = self.entryList
         if self.isEmpty():
-            L.append(f)
+            self.addPolyn(f)
             return
 
         newList = []
@@ -27,13 +40,15 @@ class entry:
                 removeList.append(l)
             elif cmp == -1:
                 return
-
-
+        self.size = 0
         for l in range(len(L)):
             if l not in removeList:
-                 newList.append(L[l])
+                newList.append(L[l])
+                self.size += 1
         newList.append(f)
         self.entryList = newList
+
+
 
     def __len__(self):
         return len(self.entryList)

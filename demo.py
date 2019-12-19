@@ -17,10 +17,12 @@ def main():
     #     print(A_i)
 
     C = Rm.Robinson(0, A=A, D=2)
-    C.init_Away()
-    C.updateRandRp()
+    #C.init_Away_Entry()
+
     # C.updateRandRp()
-    C.initial_Within_Entry()
+    C.init_both()
+
+    #C.init_Within_Entry()
     print(C)
     l = [dp.D_polyns(k=0, array=[0, 0, 0, 0, 5]),
          dp.D_polyns(k=0, array=[1, 1, 1, 1, 1]),

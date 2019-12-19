@@ -36,41 +36,55 @@ class D_polyns:
         0: they are incomparable i.e. it should be added to the entry
         1: this is a better bound than other
         -1: this is a worse bound than other, we should discard it immediately
-        :param other:
+        :param other: D_polyns
         :return:
         """
-
         if not isinstance(other, self.__class__):
             print("Need a ", str(self.__class__))
             return False
         if len(other) != self.__k:
             print("Length of ", str(self.__class__), "is different, incomparable")
             return False
-        Other = other.coeff
-        This = self.coeff
 
         if self==other:
             return -1
-        cummul = 0
+        if self<other:
+            return 1
+        if other<self:
+            return -1
+        return 0
+
+    def __lt__(self, other):
+        """
+        Strictly less than implies all elements are less or equal to the other
+        And there are at least one element that is strickly less than the poly
+        :param other:
+        :return:
+        """
+        Other = other.coeff
+        This = self.coeff
+        cummulation = 0
         nStrict = False
         for i in range(self.__k):
-            cummul += This[i] - Other[i]
-            if cummul > 0:
+            cummulation += This[i] - Other[i]
+            if cummulation > 0:
                 nStrict = True
                 break
         if not nStrict:
             return 1
-        nStrict = False
-        cummul = 0
-        for i in range(self.__k):
-            cummul += Other[i]  - This[i]
-            if cummul > 0:
-                nStrict = True
-                break
-        if not nStrict:
-            return -1
-        return 0
-
+        """
+        if self.__basicCmp(other)!= 0:
+            return NotImplemented
+        s = self.coeff
+        o = other.coeff
+        flag = False
+        for i in range(len(self)):
+            if s[i] > o[i]:
+                return False
+            if s[i]< o[i]:
+                flag = True
+        return flag and True
+        """
 
     def reset(self, k=0, array=None):
         if array is None:
@@ -116,24 +130,7 @@ class D_polyns:
                 return False
         return True
 
-    def __lt__(self, other):
-        """
-        Strictly less than implies all elements are less or equal to the other
-        And there are at least one element that is strickly less than the poly
-        :param other:
-        :return:
-        """
-        if self.__basicCmp(other)!= 0:
-            return NotImplemented
-        s = self.coeff
-        o = other.coeff
-        flag = False
-        for i in range(len(self)):
-            if s[i] > o[i]:
-                return False
-            if s[i]< o[i]:
-                flag = True
-        return flag and True
+
 
     def __ge__(self, other):
         if self.__basicCmp(other) != 0:

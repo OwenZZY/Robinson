@@ -45,7 +45,7 @@ class Robinson:
                 newWithin[i][j]= within[i][j]
 
 
-    def initial_Within_Entry(self):
+    def init_Within_Entry(self):
         """
         Initialized the within table
         :return:
@@ -71,7 +71,7 @@ class Robinson:
                 if t == self.__k-1 and self.__R[0][i][t] != 0:
                     arr[t] = 1
             f = dp.D_polyns(0, arr)
-            ent.append(f)
+            ent.addPolyn(f)
             currWithin[i][j] = ent
             currWithin[j][i] = ent
             return
@@ -119,7 +119,6 @@ class Robinson:
                     f:dp.D_polyns = ListA.get(p) + ListB.get(q)
                     currentEntry.renewList(f)
 
-
     def checkContradiction(self):
         """
         this method iterates through within and away table, check each entry such that the bounds do not contradicts to
@@ -139,8 +138,7 @@ class Robinson:
                     return (i,j)
         return True
 
-
-    def init_Away(self):
+    def init_Away_Entry(self):
         """
          At the end of this function, the program should have
          The Robinson object should consist of
@@ -167,13 +165,12 @@ class Robinson:
                     ply2 = [0] * D
                     ply2[val] = 1
                     f2 = dp.D_polyns(D, ply2)
-                    tblAway[i][j].append(f2)
+                    tblAway[i][j].addPolyn(f2)
                     # tblAway[j][i].append(f2)
                     tblAway[j][i] = tblAway[i][j]
 
         self.Away.append(tblAway)
 
-        self.iteration = 0
         ## the following will initialize the R and Rp matrix
         lM = self.levelMat
         R_iter = np.zeros((self.__n, len(self.levelMat)))
@@ -192,6 +189,15 @@ class Robinson:
         self.__R.append(R_iter)
         self.__Rp.append(Rp_iter)
 
+    def updateRandRpOne(self):
+        R_iter = np.array(self.__R[len(self.__R)-1])
+        Rp_iter = np.zeros((self.__n, len(self.levelMat)))
+        R_c = self.__R[0]#len(self.__R) - 1]
+        Rp_c = self.__Rp[len(self.__Rp) - 1]
+        for t in range(self.__k):  # for each distance d
+            for i in range(self.__n):  # for each row
+                R_iter[i][t] = R_c[int(R_iter[i][t])][t]
+        return R_iter, Rp_iter
 
     def updateRandRp(self):
         same = False
@@ -215,16 +221,48 @@ class Robinson:
                 self.__Rp.append(tup[1])
             # print(same)
 
+    def init_both(self):
+        self.init_Away_Entry()
+        self.updateRandRp()
+        self.init_Within_Entry()
+        self.iteration = 0
 
 
-    def updateConstraint(self):
+    def update_Bounds(self):
+        """
+        This function will append another within and Away table to the end of self.Within and self.Away
+        :return:
+        """
+        upperBound = self.WithIn[self.iteration]
+        lowerBound = self.Away[self.iteration]
+
+
 
         self.iteration += 1
 
     def computeNewWithIn(self):
-        new = np.zeros((self.__n, self.__n))
-
+        n = self.__n
+        new = [[Entry.entry() for _ in range(n)] for _ in range(n)]
+        for i in range(n):
+            for j in range(n):
+                pass
         self.Away.append(new)
+
+    def computeNewWithinAt(self, i, j, oldWithin, oldAway):
+        """
+        wlog i<j
+        :param i:
+        :param j:
+        :return:
+        """
+        posE = Entry.entry()
+
+        for k in range(0, i):
+            f = oldWithin[i][k] - oldAway[j][k]
+            pass
+        for k in range(j, self.__n):
+            pass
+        pass
 
     def computeNewAway(self):
         new = np.zeros((self.__n, self.__n))
@@ -311,13 +349,5 @@ def __reachProduct(self, A, B):
                 obt[i][j] = 1
     return obt
     
-    def updateRandRpOne(self):
-        R_iter = np.array(self.__R[len(self.__R)-1])
-        Rp_iter = np.zeros((self.__n, len(self.levelMat)))
-        R_c = self.__R[0]#len(self.__R) - 1]
-        Rp_c = self.__Rp[len(self.__Rp) - 1]
-        for t in range(self.__k):  # for each distance d
-            for i in range(self.__n):  # for each row
-                R_iter[i][t] = R_c[int(R_iter[i][t])][t]
-        return R_iter, Rp_iter
+
 """
