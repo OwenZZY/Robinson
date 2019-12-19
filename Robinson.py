@@ -44,15 +44,23 @@ class Robinson:
                 within[i][j]: Entry
                 newWithin[i][j]= within[i][j]
 
+
     def initial_Within_Entry(self):
+        """
+        Initialized the within table
+        :return:
+        """
         currWithinIn = [[None for _ in range(self.__n)]for _ in range(self.__n)]
         self.__within_recursive(currWithinIn, 0, self.__n - 1)
         self.WithIn.append(currWithinIn)
 
     def __within_recursive(self, currWithin: list, i, j):
+        # if entry [i, j] is not empty
+        # then by dynamic programming: the entry is computed already
         if currWithin[i][j] is not None:
             return
-
+        # Base case: if the i, j adjacent.
+        # then it is the shortest edge between each other
         if i == j-1:
             ent= Entry.entry()
             arr = [0 for _ in range(self.__k)]
@@ -68,6 +76,18 @@ class Robinson:
             currWithin[j][i] = ent
             return
 
+        # otherwise, compute recursively
+        # for each i, j, by the following diagram
+        """
+        abcd...zE
+                a
+                b
+                c
+                ...
+                z
+        """
+        # and add up all the a's, b's, ..., z's to obtain the best lower bounds
+        # see document for intuition
         for k in range(i+1,j):
             self.__within_recursive(currWithin, i, k)
             self.__within_recursive(currWithin, k, j)
@@ -85,7 +105,6 @@ class Robinson:
                 f = dp.D_polyns(k=0,array=arr)
                 currentEntry.renewList(f)
                 break
-
         return
 
     def __Minimal(self, currWithin, i, j):
@@ -101,22 +120,25 @@ class Robinson:
                     currentEntry.renewList(f)
 
 
+    def checkContradiction(self):
+        """
+        this method iterates through within and away table, check each entry such that the bounds do not contradicts to
+        each other
+        :return: return boolean that returns the position of wrong bound (i, j)
+                    if the bounds are fine return true
+        """
+        away = self.Away[self.iteration]
+        within = self.WithIn[self.iteration]
+        n = self.__n
+        for i in range(n):
+            for j in range(n):
+                Aw: Entry = away[i][j]
+                Wi: Entry = within[i][j]
+                Check = Aw.allAreLower(Wi)
+                if not Check:
+                    return (i,j)
+        return True
 
-    def reachableMatrix(self):
-        reachableMat = []
-        for A in self.levelMat:
-            reachableMat.append(self.__reachProduct(A, A))
-        return reachableMat
-
-    def __reachProduct(self, A, B):
-        obt = np.matmul(A, B)
-        for i in range(self.__n):
-            for j in range(self.__n):
-                if obt[i][j] == 0:
-                    obt[i][j] = 0
-                else:
-                    obt[i][j] = 1
-        return obt
 
     def init_Away(self):
         """
@@ -137,13 +159,7 @@ class Robinson:
         Rob = self.__Robinson
         D = self.__k
 
-
         tblAway = [[Entry.entry() for _ in range(n)] for _ in range(n)]
-        #tblWithin = [[Entry.entry() for _ in range(n)] for _ in range(n)]
-        # for i in range(n):
-        #     f = [0] * D
-        #     f[D - 1] = 1
-        #    tblWithin[i][i].add(dp.D_polyns(D, f))
         for i in range(n):
             for j in range(i + 1, n):
                 val = Rob[i][j]
@@ -152,16 +168,10 @@ class Robinson:
                     ply2[val] = 1
                     f2 = dp.D_polyns(D, ply2)
                     tblAway[i][j].append(f2)
-                    tblAway[j][i].append(f2)
-        #         if val > 0:
-        #             ply1 = [0] * D
-        #             ply1[val - 1] = 1
-        #             f = dp.D_polyns(D, ply1)
-        #             tblWithin[i][j].add(f)
-        #             tblWithin[j][i].add(f)
-        # self.WithIn.append(tblWithin)
-        self.Away.append(tblAway)
+                    # tblAway[j][i].append(f2)
+                    tblAway[j][i] = tblAway[i][j]
 
+        self.Away.append(tblAway)
 
         self.iteration = 0
         ## the following will initialize the R and Rp matrix
@@ -182,19 +192,6 @@ class Robinson:
         self.__R.append(R_iter)
         self.__Rp.append(Rp_iter)
 
-
-    def computeInitialDistance(self):
-
-
-
-        return 0
-
-    def InitWithin(self):
-
-        return 0
-    def recurInitWithin(self):
-
-        return 0
 
     def updateRandRp(self):
         same = False
@@ -218,15 +215,7 @@ class Robinson:
                 self.__Rp.append(tup[1])
             # print(same)
 
-    def updateRandRpOne(self):
-        R_iter = np.array(self.__R[len(self.__R)-1])
-        Rp_iter = np.zeros((self.__n, len(self.levelMat)))
-        R_c = self.__R[0]#len(self.__R) - 1]
-        Rp_c = self.__Rp[len(self.__Rp) - 1]
-        for t in range(self.__k):  # for each distance d
-            for i in range(self.__n):  # for each row
-                R_iter[i][t] = R_c[int(R_iter[i][t])][t]
-        return R_iter, Rp_iter
+
 
     def updateConstraint(self):
 
@@ -300,3 +289,35 @@ class Robinson:
                         if tempAM[i][j] == 0:
                             NonZero = NonZero - 1
             self.levelMat.append(np.array(level_t))
+
+
+"""Not needed"""
+"""
+
+def reachableMatrix(self):
+    reachableMat = []
+    for A in self.levelMat:
+        reachableMat.append(self.__reachProduct(A, A))
+    return reachableMat
+
+
+def __reachProduct(self, A, B):
+    obt = np.matmul(A, B)
+    for i in range(self.__n):
+        for j in range(self.__n):
+            if obt[i][j] == 0:
+                obt[i][j] = 0
+            else:
+                obt[i][j] = 1
+    return obt
+    
+    def updateRandRpOne(self):
+        R_iter = np.array(self.__R[len(self.__R)-1])
+        Rp_iter = np.zeros((self.__n, len(self.levelMat)))
+        R_c = self.__R[0]#len(self.__R) - 1]
+        Rp_c = self.__Rp[len(self.__Rp) - 1]
+        for t in range(self.__k):  # for each distance d
+            for i in range(self.__n):  # for each row
+                R_iter[i][t] = R_c[int(R_iter[i][t])][t]
+        return R_iter, Rp_iter
+"""

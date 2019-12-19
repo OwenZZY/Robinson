@@ -1,7 +1,6 @@
 import D_Polyns as dp
 class entry:
     def __init__(self):
-        self.entryList: list[dp]
         self.entryList = []
 
     def append(self, f: dp):
@@ -45,3 +44,15 @@ class entry:
             ret += str(f)+", "
         ret += "]"
         return ret
+
+    def allAreLower(self, other):
+        other: entry
+        A = self.entryList # take the polyn list of lower bound
+        B = other.entryList # take the polyn list of the upper bound
+        for aE in A:
+            aE # type: dp
+            for bE in B:
+                bE# type: dp
+                aE.canReplace(bE)    # if the lower bound is better than the upper bound, then there is a problem
+                return False
+        return True
