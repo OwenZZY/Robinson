@@ -163,15 +163,11 @@ class D_polyns:
         #    ret += "("+str(self.singleton)+")"
         for i in range(n):
             c = self.coeff[i]
-            if  c == 0:
-                continue
-            if not L:
-                ret += " + "
+            if  c == 0: continue
+            if not L:  ret += " + "
             L = False
-            if c == 1:
-                ret += "d_"+str(i+1)
-            else:
-                ret += str(self.coeff[i]) + "d_" + str(i + 1)
+            if c == 1: ret += "d_"+str(i+1)
+            else: ret += str(self.coeff[i]) + "d_" + str(i + 1)
         if ret=="": return str(0)
         return ret
 

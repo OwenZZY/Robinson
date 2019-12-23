@@ -90,7 +90,7 @@ class Robinson:
             self.__within_recursive(currWithin, i, k)
             self.__within_recursive(currWithin, k, j)
         currWithin[i][j] = Entry.entry()
-        self.__Minimal(currWithin, i, j)
+        self.__when_initial_within_table_entry_dp_IH(currWithin, i, j)
         self.__findDirectEdge(currWithin, i, j)
         currWithin[j][i] = currWithin[i][j]
 
@@ -101,11 +101,12 @@ class Robinson:
             if self.__R[0][i][t] >= j:
                 arr[t] = 1
                 f = dp.D_polyns(k=0, array=arr)
-                currentEntry.renewList(f)
+                currentEntry.renewListWRTMinMax(f,0)
                 break
         return
 
-    def __Minimal(self, currWithin, i, j):
+    def __when_initial_within_table_entry_dp_IH(self, currWithin, i, j):
+        """Used only for within_recursive"""
         currentEntry: Entry = currWithin[i][j]
         for k in range(i + 1, j):
             # print("doing ",str(i), str(k), str(j))
@@ -115,7 +116,7 @@ class Robinson:
             for p in range(len(ListA)):
                 for q in range(len(ListB)):
                     f: dp.D_polyns = ListA.get(p) + ListB.get(q)
-                    currentEntry.renewListWithMinimal(f)
+                    currentEntry.renewListWRTMinMax(f,0)
 
     def checkContradiction(self):
         """
@@ -250,12 +251,12 @@ class Robinson:
 
     def computeNewEntryAt(self, indexi, indexj, oldFront, oldBack, newFront, minmax: int):
         """
-
         :param indexi:
         :param indexj:
         :param oldFront:
         :param oldBack:
         :param newFront: Entry
+        :param minmax: 0=> minimal, 1=> maximal
         :return:
         """
         newEntry = oldFront[indexi][indexj].copy()
@@ -264,17 +265,16 @@ class Robinson:
             newE = oldFront[indexj][k] - oldBack[indexi][k]
             # if indexi == 3 and indexj == 4:
             #     print("Within"+ "("+str(indexj)+","+str(k)+") - Away"+ "("+str(indexi)+","+str(k)+")" )
-            if minmax == 0:
-                newEntry.appendEntryMax(newE)
-            else:
-                pass
+
+            newEntry.appendEntryWRTMinMax(newE, minmax)
+
         for k in range(indexj + 1, self.__n):
             # if indexi == 3 and indexj == 4:
             #     print("Within"+ "("+str( indexi)+","+str(k)+") - Away"+ "("+str(indexj)+","+str(k)+")" )
             newE = oldFront[indexi][k] - oldBack[indexj][k]
-            if minmax == 0:
-                newEntry.appendEntryMax(newE)
-            else: pass
+
+            newEntry.appendEntryWRTMinMax(newE, minmax)
+
         newFront[indexi][indexj] = newEntry
         newFront[indexj][indexi] = newEntry
 

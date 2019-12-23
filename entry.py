@@ -8,12 +8,12 @@ class entry:
         self.entryList.append(f)
         self.size += 1
 
-    def appendEntryMax(self, En):
+    def appendEntryWRTMinMax(self, En, minmax:int = 0):
         if En is None: print("Null Entry")
         En: entry
         polynList = En.entryList
         for f in polynList:
-            self.renewListWithMinimal(f)
+            self.renewListWRTMinMax(f,minmax= minmax)
 
 
 
@@ -27,13 +27,14 @@ class entry:
         return self.size
 
     def isEmpty(self) -> bool:
-        return (self.size == 0)
+        return self.size == 0
 
     # Need to prove this function is correct
-    def renewListWithMinimal(self, f: dp):
+    def renewListWRTMinMax(self, f: dp, minmax: int=0):
         """
         scan the whole list and create a new list in order to remove all polyns that is not the best bound
         :param f:
+        :param minmax: 0 => min, 1 => max
         :return:
         """
         L = self.entryList
@@ -44,7 +45,11 @@ class entry:
         newList = []
         removeList = []
         for l in range(len(L)):
-            cmp = f.canReplace(L[l])
+            if minmax == 0:
+                cmp = f.canReplace(L[l])
+            elif minmax == 1:
+                cmp = L[l].canReplace(f)
+
             if cmp == 1:
                 removeList.append(l)
             elif cmp == -1:
@@ -71,10 +76,8 @@ class entry:
         other: entry
         A = self.entryList # take the polyn list of lower bound
         B = other.entryList # take the polyn list of the upper bound
-        for aE in A:
-            aE # type: dp
-            for bE in B:
-                bE# type: dp
+        for aE in A: # type: dp
+            for bE in B: # type: dp
                 aE.canReplace(bE)    # if the lower bound is better than the upper bound, then there is a problem
                 return False
         return True
@@ -97,7 +100,7 @@ class entry:
 
         for f1 in this:
             for f2 in other:
-                newEntry.renewListWithMinimal(f1 - f2)
+                newEntry.renewListWRTMinMax(f1 - f2,minmax= 0)
         return newEntry
 
     def copy(self):
