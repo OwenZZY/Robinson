@@ -63,28 +63,15 @@ class D_polyns:
         """
         Other = other.coeff
         This = self.coeff
-        cummulation = 0
+        cumulative = 0
         nStrict = False
         for i in range(self.__k):
-            cummulation += This[i] - Other[i]
-            if cummulation > 0:
+            cumulative += This[i] - Other[i]
+            if cumulative > 0:
                 nStrict = True
                 break
         if not nStrict:
             return 1
-        """
-        if self.__basicCmp(other)!= 0:
-            return NotImplemented
-        s = self.coeff
-        o = other.coeff
-        flag = False
-        for i in range(len(self)):
-            if s[i] > o[i]:
-                return False
-            if s[i]< o[i]:
-                flag = True
-        return flag and True
-        """
 
     def reset(self, k=0, array=None):
         if array is None:
@@ -129,8 +116,6 @@ class D_polyns:
             if s[i] > o[i]:
                 return False
         return True
-
-
 
     def __ge__(self, other):
         if self.__basicCmp(other) != 0:
@@ -187,7 +172,6 @@ class D_polyns:
                 ret += "d_"+str(i+1)
             else:
                 ret += str(self.coeff[i]) + "d_" + str(i + 1)
-
         if ret=="": return str(0)
         return ret
 
@@ -195,7 +179,7 @@ class D_polyns:
         arr = [0 for _ in range(self.__k)]
         for i in range(self.__k):
             arr[i] = self.coeff[i]+ other.coeff[i]
-        f = D_polyns(k=0,array=arr)
+        f = D_polyns(array=arr)
         return f
 
     def __sub__(self, other):

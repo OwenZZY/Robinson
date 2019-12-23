@@ -8,6 +8,15 @@ class entry:
         self.entryList.append(f)
         self.size += 1
 
+    def appendEntryMax(self, En):
+        if En is None: print("Null Entry")
+        En: entry
+        polynList = En.entryList
+        for f in polynList:
+            self.renewListWithMinimal(f)
+
+
+
     def getWholeEntry(self):
         return self.entryList
 
@@ -21,7 +30,7 @@ class entry:
         return (self.size == 0)
 
     # Need to prove this function is correct
-    def renewList(self,f: dp):
+    def renewListWithMinimal(self, f: dp):
         """
         scan the whole list and create a new list in order to remove all polyns that is not the best bound
         :param f:
@@ -48,8 +57,6 @@ class entry:
         newList.append(f)
         self.entryList = newList
 
-
-
     def __len__(self):
         return len(self.entryList)
 
@@ -71,3 +78,30 @@ class entry:
                 aE.canReplace(bE)    # if the lower bound is better than the upper bound, then there is a problem
                 return False
         return True
+
+    def __sub__(self, other):
+        """
+        substraction takes entry A and B,
+        self-other gives that
+            self.entryList is a list of polyns: A
+            other.entryList is a list of polyns: B
+        for any polyn in A
+            for
+
+        :param other:
+        :return:
+        """
+        this = self.entryList
+        other = other.entryList
+        newEntry = entry()
+
+        for f1 in this:
+            for f2 in other:
+                newEntry.renewListWithMinimal(f1 - f2)
+        return newEntry
+
+    def copy(self):
+        ret = entry()
+        for f in self.entryList:
+            ret.addPolyn(f)
+        return ret

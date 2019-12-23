@@ -21,7 +21,8 @@ def main():
 
     # C.updateRandRp()
     C.init_both()
-
+    C.computeNewTable(C.WithIn[0], C.Away[0],C.WithIn)
+    C.computeNewTable(C.Away[0], C.WithIn[0],C.Away)
     #C.init_Within_Entry()
     print(C)
     l = [dp.D_polyns(k=0, array=[0, 0, 0, 0, 5]),

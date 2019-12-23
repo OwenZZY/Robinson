@@ -32,7 +32,6 @@ class Robinson:
             self.__Robinson = np.diag(np.zeros(n))
             self.__n = n
 
-
     def combine_Within_Away(self, within, away):
         if within is None or away is None:
             print("Error: Empty parameter")
@@ -42,15 +41,14 @@ class Robinson:
         for i in range(self.__n):
             for j in range(i, self.__n):
                 within[i][j]: Entry
-                newWithin[i][j]= within[i][j]
-
+                newWithin[i][j] = within[i][j]
 
     def init_Within_Entry(self):
         """
         Initialized the within table
         :return:
         """
-        currWithinIn = [[None for _ in range(self.__n)]for _ in range(self.__n)]
+        currWithinIn = [[None for _ in range(self.__n)] for _ in range(self.__n)]
         self.__within_recursive(currWithinIn, 0, self.__n - 1)
         self.WithIn.append(currWithinIn)
 
@@ -61,14 +59,14 @@ class Robinson:
             return
         # Base case: if the i, j adjacent.
         # then it is the shortest edge between each other
-        if i == j-1:
-            ent= Entry.entry()
+        if i == j - 1:
+            ent = Entry.entry()
             arr = [0 for _ in range(self.__k)]
             for t in range(self.__k):
                 if self.__R[0][i][t] == 0:
-                    arr[t-1] = 1
+                    arr[t - 1] = 1
                     break
-                if t == self.__k-1 and self.__R[0][i][t] != 0:
+                if t == self.__k - 1 and self.__R[0][i][t] != 0:
                     arr[t] = 1
             f = dp.D_polyns(0, arr)
             ent.addPolyn(f)
@@ -88,36 +86,36 @@ class Robinson:
         """
         # and add up all the a's, b's, ..., z's to obtain the best lower bounds
         # see document for intuition
-        for k in range(i+1,j):
+        for k in range(i + 1, j):
             self.__within_recursive(currWithin, i, k)
             self.__within_recursive(currWithin, k, j)
-        currWithin[i][j]=Entry.entry()
+        currWithin[i][j] = Entry.entry()
         self.__Minimal(currWithin, i, j)
-        self.__findDirectEdge(currWithin,i,j)
+        self.__findDirectEdge(currWithin, i, j)
         currWithin[j][i] = currWithin[i][j]
 
-    def __findDirectEdge(self, currWithin:list, i, j):
+    def __findDirectEdge(self, currWithin: list, i, j):
         currentEntry: Entry = currWithin[i][j]
-        arr = [0]*self.__k
-        for t in range(self.__k-1, -1 ,-1):
-            if self.__R[0][i][t]>=j:
+        arr = [0] * self.__k
+        for t in range(self.__k - 1, -1, -1):
+            if self.__R[0][i][t] >= j:
                 arr[t] = 1
-                f = dp.D_polyns(k=0,array=arr)
+                f = dp.D_polyns(k=0, array=arr)
                 currentEntry.renewList(f)
                 break
         return
 
     def __Minimal(self, currWithin, i, j):
-        currentEntry:Entry = currWithin[i][j]
-        for k in range(i+1,j):
+        currentEntry: Entry = currWithin[i][j]
+        for k in range(i + 1, j):
             # print("doing ",str(i), str(k), str(j))
             ListA: Entry = currWithin[i][k]
             ListB: Entry = currWithin[k][j]
 
             for p in range(len(ListA)):
                 for q in range(len(ListB)):
-                    f:dp.D_polyns = ListA.get(p) + ListB.get(q)
-                    currentEntry.renewList(f)
+                    f: dp.D_polyns = ListA.get(p) + ListB.get(q)
+                    currentEntry.renewListWithMinimal(f)
 
     def checkContradiction(self):
         """
@@ -135,7 +133,7 @@ class Robinson:
                 Wi: Entry = within[i][j]
                 Check = Aw.allAreLower(Wi)
                 if not Check:
-                    return (i,j)
+                    return (i, j)
         return True
 
     def init_Away_Entry(self):
@@ -190,9 +188,9 @@ class Robinson:
         self.__Rp.append(Rp_iter)
 
     def updateRandRpOne(self):
-        R_iter = np.array(self.__R[len(self.__R)-1])
+        R_iter = np.array(self.__R[len(self.__R) - 1])
         Rp_iter = np.zeros((self.__n, len(self.levelMat)))
-        R_c = self.__R[0]#len(self.__R) - 1]
+        R_c = self.__R[0]  # len(self.__R) - 1]
         Rp_c = self.__Rp[len(self.__Rp) - 1]
         for t in range(self.__k):  # for each distance d
             for i in range(self.__n):  # for each row
@@ -227,47 +225,58 @@ class Robinson:
         self.init_Within_Entry()
         self.iteration = 0
 
-
     def update_Bounds(self):
         """
         This function will append another within and Away table to the end of self.Within and self.Away
         :return:
         """
-        upperBound = self.WithIn[self.iteration]
-        lowerBound = self.Away[self.iteration]
+        oldUpperBound = self.WithIn[self.iteration]
+        oldLowerBound = self.Away[self.iteration]
+        ## To compute new within table, use within away new within
+        ## To compute new away table, use away within new away
 
-
-
+        self.computeNewTable(oldUpperBound, oldLowerBound, self.Within, minmax= 0) # compute new within
+        self.computeNewTable(oldLowerBound, oldUpperBound, self.Away, minmax = 1) # compute new away
         self.iteration += 1
 
-    def computeNewWithIn(self):
+    def computeNewTable(self, Front, Back, Append, minmax: int):
         n = self.__n
-        new = [[Entry.entry() for _ in range(n)] for _ in range(n)]
+        newTable = [[None for _ in range(n)] for _ in range(n)]
         for i in range(n):
-            for j in range(n):
+            for j in range(i + 1, n):
+                self.computeNewEntryAt(i, j, Front, Back, newTable, minmax=minmax)
                 pass
-        self.Away.append(new)
+        Append.append(newTable)
 
-    def computeNewWithinAt(self, i, j, oldWithin, oldAway):
+    def computeNewEntryAt(self, indexi, indexj, oldFront, oldBack, newFront, minmax: int):
         """
-        wlog i<j
-        :param i:
-        :param j:
+
+        :param indexi:
+        :param indexj:
+        :param oldFront:
+        :param oldBack:
+        :param newFront: Entry
         :return:
         """
-        posE = Entry.entry()
+        newEntry = oldFront[indexi][indexj].copy()
 
-        for k in range(0, i):
-            f = oldWithin[i][k] - oldAway[j][k]
-            pass
-        for k in range(j, self.__n):
-            pass
-        pass
-
-    def computeNewAway(self):
-        new = np.zeros((self.__n, self.__n))
-
-        self.WithIn.append(new)
+        for k in range(0, indexi):
+            newE = oldFront[indexj][k] - oldBack[indexi][k]
+            # if indexi == 3 and indexj == 4:
+            #     print("Within"+ "("+str(indexj)+","+str(k)+") - Away"+ "("+str(indexi)+","+str(k)+")" )
+            if minmax == 0:
+                newEntry.appendEntryMax(newE)
+            else:
+                pass
+        for k in range(indexj + 1, self.__n):
+            # if indexi == 3 and indexj == 4:
+            #     print("Within"+ "("+str( indexi)+","+str(k)+") - Away"+ "("+str(indexj)+","+str(k)+")" )
+            newE = oldFront[indexi][k] - oldBack[indexj][k]
+            if minmax == 0:
+                newEntry.appendEntryMax(newE)
+            else: pass
+        newFront[indexi][indexj] = newEntry
+        newFront[indexj][indexi] = newEntry
 
     def __str__(self):
         ret = ""
@@ -278,11 +287,24 @@ class Robinson:
             for j in range(self.__n):
                 ret += str(away[0][i][j]) + "\t\t\t"
             ret += "\n"
-        ret += "\nWithin:\n"
+        ret += "Away 2:\n"
+        for i in range(self.__n):
+            for j in range(self.__n):
+                ret += str(away[1][i][j]) + "\t\t\t"
+            ret += "\n"
+        ret += "\nWithin 0:\n"
         for i in range(self.__n):
             for j in range(self.__n):
                 if within[0][i][j] is not None:
-                    ret+="("+ str(i)+", "+str(j)+"): "+str(within[0][i][j])+ "\t"
+                    ret += "(" + str(i) + ", " + str(j) + "): " + str(within[0][i][j]) + "\t"
+                else:
+                    ret += "[]" + "\t\t\t\t"
+            ret += "\n"
+        ret += "\nWithin 1:\n"
+        for i in range(self.__n):
+            for j in range(self.__n):
+                if within[1][i][j] is not None:
+                    ret += "(" + str(i) + ", " + str(j) + "): " + str(within[1][i][j]) + "\t"
                 else:
                     ret += "[]" + "\t\t\t\t"
             ret += "\n"
