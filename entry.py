@@ -15,7 +15,8 @@ class entry:
         for f in polynList:
             self.renewListWRTMinMax(f,minmax= minmax)
 
-
+    def getSize(self):
+        return self.size
 
     def getWholeEntry(self):
         return self.entryList
@@ -80,6 +81,22 @@ class entry:
             for bE in B: # type: dp
                 if aE.canReplace(bE) == -1:    # if the lower bound is better than the upper bound, then there is a problem
                     return False
+        return True
+
+    def allEqual(self, other)->bool:
+        other:entry
+        A = self.entryList
+        B = other.entryList
+        if len(A) != len(B):
+            return False
+        exists = False
+        for aE in A:
+            for bE in B:
+                if aE == bE:
+                    exists = True
+                    continue
+            if exists is False:
+                return False
         return True
 
     def __sub__(self, other):

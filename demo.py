@@ -10,24 +10,40 @@ def main():
          [1, 2, 2, 2, 1, 1],
          [0, 1, 2, 2, 2, 1],
          [0, 1, 1, 2, 2, 2],
-         [0, 1, 1, 1, 2, 2]]
+         [0, 1, 1, 1, 2, 2]]  ## example that stops
+
+    ## example that stops
+    B = [[2, 2, 1, 0, 0, 0, 0, 0, 0, 0],
+         [2, 2, 2, 1, 0, 0, 0, 0, 0, 0],
+         [1, 2, 2, 2, 1, 0, 0, 0, 0, 0],
+         [0, 1, 2, 2, 2, 1, 0, 0, 0, 0],
+         [0, 0, 1, 2, 2, 2, 1, 1, 1, 1],
+         [0, 0, 0, 1, 2, 2, 2, 1, 1, 1],
+         [0, 0, 0, 0, 1, 2, 2, 2, 1, 1],
+         [0, 0, 0, 0, 1, 1, 2, 2, 2, 1],
+         [0, 0, 0, 0, 1, 1, 1, 2, 2, 2],
+         [0, 0, 0, 0, 1, 1, 1, 1, 2, 2]]
+    E = [[1, 1, 0, 0, 0, 0, 0],
+         [1, 1, 1, 0, 0, 0, 0],
+         [0, 1, 1, 1, 0, 0, 0],
+         [0, 0, 1, 1, 1, 1, 1],
+         [0, 0, 0, 1, 1, 1, 1],
+         [0, 0, 0, 1, 1, 1, 1],
+         [0, 0, 0, 1, 1, 1, 1]]
     # G.setAdjMat(A)
     # Reachable = G.reachableMatrix()
     # for A_i in Reachable:
     #     print(A_i)
 
-    C = Rm.Robinson(0, A=A, D=2)
-    #C.init_Away_Entry()
+    C = Rm.Robinson(0, A=E, D=1)
+    # C.init_Away_Entry()
 
     # C.updateRandRp()
     C.init_both()
-    #C.computeNewTable(C.WithIn[0], C.Away[0],C.WithIn, 0)
-    #C.computeNewTable(C.Away[0], C.WithIn[0],C.Away, 1)
-    #C.computeNewTable(C.WithIn[1], C.Away[1], C.WithIn, 0)
-    #C.computeNewTable(C.Away[1], C.WithIn[1], C.Away, 1)
     # C.update_Bounds()
-    print("Contradiction point: ", C.checkContradiction())
-    #C.init_Within_Entry()
+    C.update_Bounds()
+    print("Contradiction point: ", C.there_is_a_Contradiction())
+    # C.init_Within_Entry()
     print(C)
     l = [dp.D_polyns(k=0, array=[0, 0, 0, 0, 5]),
          dp.D_polyns(k=0, array=[1, 1, 1, 1, 1]),
@@ -43,7 +59,6 @@ def main():
     #         print(str(i)+", "+str(j)+": ",str(l[i])+" cmp to "+ str(l[j])+": ", str(l[i].canReplace(l[j])))
 
     print(a.canReplace(b))
-
 
 
 if __name__ == "__main__":

@@ -19,7 +19,8 @@ class Robinson:
         # self.reachability_i = []
         self.Away = []
         self.WithIn = []
-        self.iteration = 0
+        self.iteration_within = 0
+        self.iteration_away = 0
         self.__R = []  # R[i] is the reachability of the ith iteration, R[i] has shape (__n, __k) where __n is the size of the matrix, __k is the number of d's and in the order of  d[d_1, ..., d_k]
         self.__Rp = []
         if n == 0:  # set Robinson
@@ -118,15 +119,15 @@ class Robinson:
                     f: dp.D_polyns = ListA.get(p) + ListB.get(q)
                     currentEntry.renewListWRTMinMax(f,0)
 
-    def checkContradiction(self):
+    def there_is_a_Contradiction(self):
         """
         this method iterates through within and away table, check each entry such that the bounds do not contradicts to
         each other
         :return: return boolean that returns the position of wrong bound (i, j)
                     if the bounds are fine return true
         """
-        away = self.Away[self.iteration]
-        within = self.WithIn[self.iteration]
+        away = self.Away[self.iteration_within]
+        within = self.WithIn[self.iteration_within]
         n = self.__n
         for i in range(n):
             for j in range(i+1, n):
@@ -225,21 +226,60 @@ class Robinson:
         self.init_Away_Entry()
         self.updateRandRp()
         self.init_Within_Entry()
-        self.iteration = 0
+        self.iteration_within = 0
+        self.iteration_away = 0
 
     def update_Bounds(self):
         """
         This function will append another within and Away table to the end of self.Within and self.Away
         :return:
         """
-        oldUpperBound = self.WithIn[self.iteration]
-        oldLowerBound = self.Away[self.iteration]
+
         ## To compute new within table, use within away new within
         ## To compute new away table, use away within new away
 
-        self.computeNewTable(oldUpperBound, oldLowerBound, self.WithIn, minmax= 0) # compute new within
-        self.computeNewTable(oldLowerBound, oldUpperBound, self.Away, minmax = 1) # compute new away
-        self.iteration += 1
+        keep_renew_within = True
+        keep_renew_away = True
+
+        while keep_renew_within or keep_renew_away:
+
+            oldUpperBound = self.WithIn[self.iteration_within]
+            oldLowerBound = self.Away[self.iteration_away]
+            if keep_renew_within:
+                # compute new within
+
+                self.computeNewTable(oldUpperBound, oldLowerBound, self.WithIn, minmax=0)
+                self.iteration_within += 1
+                keep_renew_within = not (self.__last_two_are_the_same(self.WithIn,self.iteration_within))
+                pass
+
+            if keep_renew_away:
+                # compute new away
+                self.computeNewTable(oldLowerBound, oldUpperBound, self.Away, minmax=1)
+                self.iteration_away += 1
+                keep_renew_away = not (self.__last_two_are_the_same(self.Away, self.iteration_away))
+                pass
+
+            if self.there_is_a_Contradiction():
+                break
+
+        print("Loooop Ennnnnnnd!")
+
+
+
+    def __last_two_are_the_same(self, WholeTable, iteration_Last)->bool:
+        LastTable = WholeTable[iteration_Last]
+        SecondLastTable = WholeTable[iteration_Last - 1]
+        n = self.__n
+        for i in range(n):
+            for j in range(i+1, n):
+                LastTable[i][j]: Entry
+                SecondLastTable[i][j]:Entry
+                EntryEqual = LastTable[i][j].allEqual(SecondLastTable[i][j])
+                if EntryEqual is False:
+                    return False
+        return True
+
 
     def computeNewTable(self, Front, Back, Append, minmax: int):
         n = self.__n
@@ -281,23 +321,20 @@ class Robinson:
 
     def __str__(self):
         ret = ""
+
         away = self.Away
         within = self.WithIn
-        ret += "Away:\n"
+        ret += "Away:"+str(self.iteration_away)+"\n"
         for i in range(self.__n):
             for j in range(self.__n):
-                ret += str(away[0][i][j]) + "\t\t\t"
+                ret += str(away[self.iteration_away][i][j]) + "\t\t\t"
             ret += "\n"
-        # ret += "Away 2:\n"
-        # for i in range(self.__n):
-        #     for j in range(self.__n):
-        #         ret += str(away[1][i][j]) + "\t\t\t"
-        #     ret += "\n"
-        ret += "\nWithin 0:\n"
+
+        ret += "\nWithin :"+str(self.iteration_within)+"\n"
         for i in range(self.__n):
             for j in range(self.__n):
-                if within[0][i][j] is not None:
-                    ret += "(" + str(i) + ", " + str(j) + "): " + str(within[0][i][j]) + "\t"
+                if within[self.iteration_within][i][j] is not None:
+                    ret += "(" + str(i) + ", " + str(j) + "): " + str(within[self.iteration_within][i][j]) + "\t"
                 else:
                     ret += "[]" + "\t\t\t\t"
             ret += "\n"
@@ -344,9 +381,10 @@ class Robinson:
                 for j in range(i, self.__n):
                     if tempAM[i][j] > 0:
                         level_t[i][j] = 1
-                        level_t[j][i] = 1
                         tempAM[i][j] = tempAM[i][j] - 1
-                        tempAM[j][i] = tempAM[j][i] - 1
+                        if i != j:
+                            level_t[j][i] = 1
+                            tempAM[j][i] = tempAM[j][i] - 1
                         if tempAM[i][j] == 0:
                             NonZero = NonZero - 1
             self.levelMat.append(np.array(level_t))
