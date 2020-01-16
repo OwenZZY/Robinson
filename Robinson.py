@@ -129,7 +129,8 @@ class Robinson:
         within = self.WithIn[self.iteration]
         n = self.__n
         for i in range(n):
-            for j in range(n):
+            for j in range(i+1, n):
+                print((i,j))
                 Aw: Entry = away[i][j]
                 Wi: Entry = within[i][j]
                 Check = Aw.allAreLower(Wi)
@@ -236,7 +237,7 @@ class Robinson:
         ## To compute new within table, use within away new within
         ## To compute new away table, use away within new away
 
-        self.computeNewTable(oldUpperBound, oldLowerBound, self.Within, minmax= 0) # compute new within
+        self.computeNewTable(oldUpperBound, oldLowerBound, self.WithIn, minmax= 0) # compute new within
         self.computeNewTable(oldLowerBound, oldUpperBound, self.Away, minmax = 1) # compute new away
         self.iteration += 1
 
@@ -287,11 +288,11 @@ class Robinson:
             for j in range(self.__n):
                 ret += str(away[0][i][j]) + "\t\t\t"
             ret += "\n"
-        ret += "Away 2:\n"
-        for i in range(self.__n):
-            for j in range(self.__n):
-                ret += str(away[1][i][j]) + "\t\t\t"
-            ret += "\n"
+        # ret += "Away 2:\n"
+        # for i in range(self.__n):
+        #     for j in range(self.__n):
+        #         ret += str(away[1][i][j]) + "\t\t\t"
+        #     ret += "\n"
         ret += "\nWithin 0:\n"
         for i in range(self.__n):
             for j in range(self.__n):
@@ -300,14 +301,14 @@ class Robinson:
                 else:
                     ret += "[]" + "\t\t\t\t"
             ret += "\n"
-        ret += "\nWithin 1:\n"
-        for i in range(self.__n):
-            for j in range(self.__n):
-                if within[1][i][j] is not None:
-                    ret += "(" + str(i) + ", " + str(j) + "): " + str(within[1][i][j]) + "\t"
-                else:
-                    ret += "[]" + "\t\t\t\t"
-            ret += "\n"
+        # ret += "\nWithin 1:\n"
+        # for i in range(self.__n):
+        #     for j in range(self.__n):
+        #         if within[1][i][j] is not None:
+        #             ret += "(" + str(i) + ", " + str(j) + "): " + str(within[1][i][j]) + "\t"
+        #         else:
+        #             ret += "[]" + "\t\t\t\t"
+        #     ret += "\n"
         return ret
 
     def __letSym(self, A):

@@ -78,8 +78,8 @@ class entry:
         B = other.entryList # take the polyn list of the upper bound
         for aE in A: # type: dp
             for bE in B: # type: dp
-                aE.canReplace(bE)    # if the lower bound is better than the upper bound, then there is a problem
-                return False
+                if aE.canReplace(bE) == -1:    # if the lower bound is better than the upper bound, then there is a problem
+                    return False
         return True
 
     def __sub__(self, other):

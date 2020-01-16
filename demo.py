@@ -21,8 +21,12 @@ def main():
 
     # C.updateRandRp()
     C.init_both()
-    C.computeNewTable(C.WithIn[0], C.Away[0],C.WithIn, 0)
-    C.computeNewTable(C.Away[0], C.WithIn[0],C.Away, 1)
+    #C.computeNewTable(C.WithIn[0], C.Away[0],C.WithIn, 0)
+    #C.computeNewTable(C.Away[0], C.WithIn[0],C.Away, 1)
+    #C.computeNewTable(C.WithIn[1], C.Away[1], C.WithIn, 0)
+    #C.computeNewTable(C.Away[1], C.WithIn[1], C.Away, 1)
+    # C.update_Bounds()
+    print("Contradiction point: ", C.checkContradiction())
     #C.init_Within_Entry()
     print(C)
     l = [dp.D_polyns(k=0, array=[0, 0, 0, 0, 5]),
@@ -31,8 +35,8 @@ def main():
          dp.D_polyns(k=0, array=[1, 2, 3, 4, 5]),
          dp.D_polyns(k=0, array=[1, 0, 3, 4, 5]),
          dp.D_polyns(k=0, array=[0, 2, 3, 4, 5])]
-    a = dp.D_polyns(k=0, array=[0, 2])
-    b = dp.D_polyns(k=0, array=[1, 0])
+    a = dp.D_polyns(k=0, array=[1, -2])
+    b = dp.D_polyns(k=0, array=[0, 1])
 
     # for i in range(len(l)):
     #     for j in range(len(l)):
