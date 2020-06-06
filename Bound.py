@@ -4,6 +4,10 @@ Define bound
 import numpy as np
 
 class Bound:
+
+    positive_bound = [] # if upper bound + positive bound, then it is not a better upper bound.
+    negative_bound = [] # if lower bound + negative bound, then it is not a better lower bound.
+
     def __le__(self, other):
         if self == other:
             return True

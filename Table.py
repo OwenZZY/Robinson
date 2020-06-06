@@ -103,7 +103,7 @@ class Table:
         # T = [[BoundsType() for _ in range(n)] for _ in range(n)]
         retT = Table(toCpy=self)
         for i in range(self.n):
-            for j in range(i+1, self.n):
+            for j in range(i, self.n):
                 for k in range(i, j):
                     retT.joinBoundsAt(i, j, T1[i][k] + T2[k][j])
 
@@ -118,7 +118,7 @@ class Table:
         n = self.n
         retT = Table(toCpy=self)
         for i in range(n):
-            for j in range(i+1, n):
+            for j in range(i, n):
                 for k in range(0, i):
                     retT.joinBoundsAt(i,j, T1[k][j] - T2[k][i])
                     pass

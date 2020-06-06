@@ -19,7 +19,7 @@ class Robinson:
     def find_embedding(self):
         contradiction_at = (-1,-1)
         n = self.n
-        while self.alpha**2 <= n and contradiction_at == (-1,-1):
+        while (self.alpha-1**2) <= n and contradiction_at == (-1,-1):
             U_alpha = self.U[self.alpha]
             L_alpha = self.L[self.alpha]
 
@@ -49,7 +49,7 @@ class Robinson:
         #U = U_T.getTable()
         n = self.n
         for i in range(n):
-            for j in range(i+1, n):
+            for j in range(i, n):
                 if L_T.getAt(i,j).causes_contradiction(
                         U_T.getAt(i,j)):
                     print(str(L_T.getAt(i,j)),  " versus ",U_T.getAt(i,j))
@@ -69,7 +69,7 @@ class Robinson:
         G = self.G
         T = [[ubds.UpperBounds() for _ in range(n)] for _ in range(n)]
         for i in range(n):
-            for j in range(i+1, n):
+            for j in range(i, n):
                 curr = T[i][j]
 
                 if G[i][j] != 0:
@@ -86,7 +86,7 @@ class Robinson:
         G = self.G
         T = [[lbds.LowerBounds() for _ in range(n)] for _ in range(n)]
         for i in range(n):
-            for j in range(i+1, n):
+            for j in range(i, n):
                 curr = T[i][j]
                 b_array = [0 for _ in range(k)]
                 if G[i][j] < k:
