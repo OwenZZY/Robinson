@@ -8,6 +8,17 @@ class Bound:
     positive_bound = [] # if upper bound + positive bound, then it is not a better upper bound.
     negative_bound = [] # if lower bound + negative bound, then it is not a better lower bound.
 
+    def divides(self, other): # A|B, so B%A == 0 and B/A = r
+        A=self.d
+        B=other.get_array()
+        ratio = B/A
+        sign = B%A
+        r,s = ratio[0], sign[0]
+        for i in range(self.k):
+            if r != ratio[i] or s != sign[0]:
+                return False
+        return True
+
     def __le__(self, other):
         if self == other:
             return True

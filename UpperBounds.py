@@ -28,6 +28,7 @@ class UpperBounds(bds.Bounds):
         for ind in removeIndex:
             bounds.pop(ind)
         bounds.append(elt)
+        return toAdd
 
 
     def __sub__(self, L_Bds):

@@ -22,6 +22,7 @@ class LowerBounds(bds.Bounds):
         for ind in removeIndex:
             bounds.pop(ind)
         bounds.append(elt)
+        return toAdd
 
     def __sub__(self, U_Bds:ubds):
         if not isinstance(U_Bds, ubds.UpperBounds):

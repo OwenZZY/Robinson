@@ -5,17 +5,21 @@ import LowerBounds as lbds
 
 
 class Table:
-
     # n is the size of the table, toCpy is another Table to copy
     def __init__(self, n=1,  withArray=None, toCpy=None):
         if withArray is not None and toCpy is not None:
             raise Exception("withArray and toCpy cannot be both not None")
 
+        self.upper_table = False
         if withArray is not None:
             if not isinstance(withArray, list):
                 raise Exception("withArray variable expects list, "+type(withArray)+" given." )
             self.n = len(withArray)
             self.table = [[None for _ in range(self.n)] for _ in range(self.n)]
+
+            if isinstance(withArray[0][0], ubds.UpperBounds):
+                self.upper_table = True
+
             for i in range(self.n):
                 for j in range(i, self.n):
                     if not (isinstance(withArray[i][j], ubds.UpperBounds) or isinstance(withArray[i][j], lbds.LowerBounds)):
@@ -23,6 +27,7 @@ class Table:
                                         "withArray at ("
                                         + str(i) +"," + str(j) +"), "
                                         + str(type(withArray)) + " is given."   )
+
                     self.table[i][j] = withArray[i][j]
                     self.table[j][i] = self.table[i][j]
             return
