@@ -19,7 +19,7 @@ class Robinson:
     def find_embedding(self):
         contradiction_at = (-1,-1)
         n = self.n
-        while (self.alpha-1**2) <= n and contradiction_at == (-1,-1):
+        while (self.alpha**2) <= n and contradiction_at == (-1,-1):
             U_alpha = self.U[self.alpha]
             L_alpha = self.L[self.alpha]
 
@@ -36,6 +36,13 @@ class Robinson:
             print("Within table\n", self.U[self.alpha], "\nAway table\n", self.L[self.alpha])
             contradiction_at = self.no_contradiction()
             print("-------iter ", str(self.alpha), " ends-----")
+            # print("-----poss below-----")
+            # for b in bd.Bound.positive_bound:
+            #     print(b)
+            # print("-----negs below-----")
+            # for b in bd.Bound.negative_bound:
+            #     print(b)
+            # print("--------------------")
         if contradiction_at != (-1,-1):
             print(contradiction_at)
         else:

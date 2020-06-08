@@ -98,14 +98,8 @@ class Table:
             raise Exception("Table addition expect same Bounds Type, "
                             + T1[0][0].whatami() + " and "+  T2[0][0].whatami() + " given." )
 
-        # if isinstance(T1[0][0], ubds.UpperBounds):
-        #     BoundsType = ubds.UpperBounds
-        # else:  # lbds
-        #     BoundsType = lbds.LowerBounds
 
         n = self.n
-        # T shall be a 2-D array of
-        # T = [[BoundsType() for _ in range(n)] for _ in range(n)]
         retT = Table(toCpy=self)
         for i in range(self.n):
             for j in range(i, self.n):

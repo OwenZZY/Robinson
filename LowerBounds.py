@@ -1,5 +1,7 @@
 import UpperBounds as ubds
 import Bounds as bds
+import Bound as bd
+
 
 class LowerBounds(bds.Bounds):
     def whatami(self):
@@ -32,6 +34,8 @@ class LowerBounds(bds.Bounds):
         U = U_Bds.getBounds()
         for l in L:
             for u in U:
+                if u.is_a_positive_bound():
+                    continue
                 ret.union(l - u)
         return ret
 
@@ -40,6 +44,10 @@ class LowerBounds(bds.Bounds):
         this = self.bounds
         other = otherB.getBounds()
         for b1 in this:
+            if b1.is_a_positive_bound():
+                continue
             for b2 in other:
+                if b2.is_a_positive_bound():
+                    continue
                 ret.union(b1+b2)
         return ret

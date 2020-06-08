@@ -1,8 +1,13 @@
 """
 Define Bounds
 """
-import Bound
+import Bound as bd
+
+
+
 class Bounds:
+
+
     def whatami(self):
         return "Bounds"
 
@@ -39,9 +44,10 @@ class Bounds:
         return self.bounds
 
 
-    def union(self, elt:Bound):
+    def union(self, elt:bd):
         # default union move
         self.bounds.append(elt)
+
 
     def causes_contradiction(self, otherB):
         """

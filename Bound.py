@@ -5,8 +5,44 @@ import numpy as np
 
 class Bound:
 
+    def add_to_positive_bound(self):
+        add = True
+        for b in self.positive_bound:
+            if b.divides(self):
+                add = False
+                break
+        if add:
+            self.positive_bound.append(self)
+        pass
+
+    def add_to_negative_bound(self):
+        add = True
+        for b in self.negative_bound:
+            if b.divides(self):
+                add = False
+                break
+        if add:
+            self.negative_bound.append(self)
+
     positive_bound = [] # if upper bound + positive bound, then it is not a better upper bound.
     negative_bound = [] # if lower bound + negative bound, then it is not a better lower bound.
+
+    def is_a_negative_bound(self):
+        N = self.negative_bound
+        for n in N:
+            if n.divides(self):
+                return True
+        return False
+
+    def is_a_positive_bound(self):
+        P = self.positive_bound
+        for p in P:  # p:bd.Bound
+            if p.divides(self):
+                return True
+        return False
+
+    def get_positive_bound(self):
+        return self.positive_bound
 
     def divides(self, other): # A|B, so B%A == 0 and B/A = r
         A=self.d
