@@ -12,14 +12,18 @@ class Robinson:
         self.k = k
         self.L = []
         self.U = []
-        self.L.append(self.__constructInitialLowerBoundsTable())
         self.U.append(self.__constructInitialUpperBoundsTable())
+        self.L.append(self.__constructInitialLowerBoundsTable())
+        print("-----Initial Lower-----")
+        print(self.L[0])
+        print("-----Initial Upper-----")
+        print(self.U[0])
         pass
 
     def find_embedding(self):
         contradiction_at = (-1,-1)
         n = self.n
-        while (self.alpha**2) <= n and contradiction_at == (-1,-1):
+        while (((self.alpha-1)**2) <= n) and (contradiction_at == (-1,-1)):
             U_alpha = self.U[self.alpha]
             L_alpha = self.L[self.alpha]
 
@@ -36,18 +40,17 @@ class Robinson:
             print("Within table\n", self.U[self.alpha], "\nAway table\n", self.L[self.alpha])
             contradiction_at = self.no_contradiction()
             print("-------iter ", str(self.alpha), " ends-----")
-            # print("-----poss below-----")
-            # for b in bd.Bound.positive_bound:
-            #     print(b)
-            # print("-----negs below-----")
-            # for b in bd.Bound.negative_bound:
-            #     print(b)
-            # print("--------------------")
+            print("-----poss below-----")
+            for b in bd.Bound.positive_bound:
+                print(b)
+            print("-----negs below-----")
+            for b in bd.Bound.negative_bound:
+                print(b)
+            print("--------------------")
         if contradiction_at != (-1,-1):
             print(contradiction_at)
         else:
             print("Finded?", contradiction_at)
-
 
     def no_contradiction(self)->(int,int):
         L_T:lbds = self.L[self.alpha]
@@ -62,8 +65,6 @@ class Robinson:
                     print(str(L_T.getAt(i,j)),  " versus ",U_T.getAt(i,j))
                     return (i,j)
         return -1, -1
-
-
 
     def L_at(self, i):
         return self.L[i]
@@ -98,7 +99,9 @@ class Robinson:
                 b_array = [0 for _ in range(k)]
                 if G[i][j] < k:
                     b_array[G[i][j]] = 1
-                curr.union(bd.Bound(ds=b_array))
-                #print(bd.Bound(ds=b_array))
+                b_curr = bd.Bound(ds=b_array)
+
+                curr.union(b_curr)
+
                 T[i][j] = curr
         return tbl.Table(withArray=T)

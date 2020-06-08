@@ -4,6 +4,16 @@ import UpperBounds as ubds
 import LowerBounds as lbds
 
 
+def add_set_to_negative_bd(set:list):
+    for b in set:
+        b.add_to_negative_bound()
+
+
+def add_set_to_positive_bd(set:list):
+    for b in set:
+        b.add_to_positive_bound()
+
+
 class Table:
     # n is the size of the table, toCpy is another Table to copy
     def __init__(self, n=1,  withArray=None, toCpy=None):
@@ -80,13 +90,15 @@ class Table:
         return self.table[i][j]
 
     def addEltAt(self, i, j, elt):
-        entry = self.table[i][j].union(elt)
+        return self.table[i][j].union(elt)
 
     def joinBoundsAt(self, i, j, bounds):
         B = bounds.getBounds()
+        ret_bd = []
         for b in B:
-            self.addEltAt(i,j, b)
-        pass
+            if self.addEltAt(i,j, b):
+                ret_bd.append(b)
+        return ret_bd
 
     def setAt(self, i, j, bounds):
         self.table[i][j] = bounds
@@ -98,13 +110,14 @@ class Table:
             raise Exception("Table addition expect same Bounds Type, "
                             + T1[0][0].whatami() + " and "+  T2[0][0].whatami() + " given." )
 
-
-        n = self.n
         retT = Table(toCpy=self)
         for i in range(self.n):
             for j in range(i, self.n):
                 for k in range(i, j):
-                    retT.joinBoundsAt(i, j, T1[i][k] + T2[k][j])
+                    entry = T1[i][k] + T2[k][j]
+                    # print("("+ str(i)+ ","+str(j)+"): "
+                    #       +str( T1[i][k] )+"+"+ str(T2[k][j]))
+                    retT.joinBoundsAt(i, j, entry)
 
         return retT
 
@@ -119,13 +132,28 @@ class Table:
         for i in range(n):
             for j in range(i, n):
                 for k in range(0, i):
-                    retT.joinBoundsAt(i,j, T1[k][j] - T2[k][i])
-                    pass
-                for k in range(j+1,n):
-                    retT.joinBoundsAt(i,j, T1[i][k] - T2[j][k])
-                    pass
-        return retT
+                    entry = T1[k][j] - T2[k][i]
+                    # print("("+ str(i)+ ","+str(j)+"): "
+                    #       +str(T1[k][j]) + " - "+ str(T1[k][i]))
+                    ret_bd = retT.joinBoundsAt(i,j, entry)
+                    if i == j:
+                        if isinstance(T1[0][0], ubds.UpperBounds):
+                            add_set_to_negative_bd(ret_bd)
+                        else:
+                            add_set_to_positive_bd(ret_bd)
 
+                for k in range(j+1,n):
+                    entry = T1[i][k] - T2[j][k]
+                    # print("("+ str(i)+ ","+str(j)+"): "
+                    #       +str(T1[i][k])+" - "+str(T2[j][k]))
+                    ret_bd = retT.joinBoundsAt(i,j,entry)
+                    if i == j:
+                        if isinstance(T1[0][0], ubds.UpperBounds):
+                            add_set_to_negative_bd(ret_bd)
+                        else:
+                            add_set_to_positive_bd(ret_bd)
+
+        return retT
 
     def TypeTable(self):
         ret = ""

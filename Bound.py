@@ -47,12 +47,31 @@ class Bound:
     def divides(self, other): # A|B, so B%A == 0 and B/A = r
         A=self.d
         B=other.get_array()
-        ratio = B/A
-        sign = B%A
-        r,s = ratio[0], sign[0]
-        for i in range(self.k):
-            if r != ratio[i] or s != sign[0]:
-                return False
+        # r: ratio, m: divisibility
+        # rp:previous r, rs: pre'' s
+        pm = None
+        i = 0
+        while True:
+
+            if A[i]!= 0:
+                r = B[i]/A[i]
+                m = B[i]%A[i]
+                if pm is None:
+                    pr = r
+                    pm = m
+
+
+                if pm != m:
+                    return False
+                if pr != r:
+                    return False
+
+            else:
+                if B[i]!= 0:
+                    return False
+            i += 1
+            if i == self.k:
+                break
         return True
 
     def __le__(self, other):
@@ -142,3 +161,7 @@ class Bound:
 
     def __str__(self):
         return str(self.d)
+
+    def clean_pos_neg_bound(self):
+        self.positive_bound = []
+        self.negative_bound = []

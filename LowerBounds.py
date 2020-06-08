@@ -1,7 +1,5 @@
 import UpperBounds as ubds
 import Bounds as bds
-import Bound as bd
-
 
 class LowerBounds(bds.Bounds):
     def whatami(self):
@@ -13,6 +11,10 @@ class LowerBounds(bds.Bounds):
         removeIndex = []
         bounds = self.bounds
         toAdd = True
+
+        if elt.is_a_positive_bound():
+            return False
+
         for i in range(len(bounds)):
             if bounds[i] <= elt:
                 removeIndex.append(i)
