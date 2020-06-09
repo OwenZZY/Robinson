@@ -3,6 +3,15 @@ import UpperBounds as ubds
 import LowerBounds as lbds
 import Bound as bd
 
+def print_pn_bd():
+    print("-----poss below-----")
+    for b in bd.Bound.positive_bound:
+        print(b)
+    print("-----negs below-----")
+    for b in bd.Bound.negative_bound:
+        print(b)
+    print("--------------------")
+
 class Robinson:
 
     def __init__(self, G, k):
@@ -14,10 +23,13 @@ class Robinson:
         self.U = []
         self.U.append(self.__constructInitialUpperBoundsTable())
         self.L.append(self.__constructInitialLowerBoundsTable())
-        print("-----Initial Lower-----")
-        print(self.L[0])
+
         print("-----Initial Upper-----")
         print(self.U[0])
+        print("-----Initial Lower-----")
+        print(self.L[0])
+        print_pn_bd()
+
         pass
 
     def find_embedding(self):
@@ -40,13 +52,7 @@ class Robinson:
             print("Within table\n", self.U[self.alpha], "\nAway table\n", self.L[self.alpha])
             contradiction_at = self.no_contradiction()
             print("-------iter ", str(self.alpha), " ends-----")
-            print("-----poss below-----")
-            for b in bd.Bound.positive_bound:
-                print(b)
-            print("-----negs below-----")
-            for b in bd.Bound.negative_bound:
-                print(b)
-            print("--------------------")
+            print_pn_bd()
         if contradiction_at != (-1,-1):
             print(contradiction_at)
         else:

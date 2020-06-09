@@ -18,17 +18,14 @@ class UpperBounds(bds.Bounds):
         bounds = self.bounds
         toAdd = True
 
-        # todo: if it divides a positive bound then don't add
-        if elt.is_a_negative_bound():
-            return False
 
         # put index of e's\in bounds s.t. elt < e in a removing list to remove
-
         for i in range(len(bounds)):
             if elt <= bounds[i]:
                 removeIndex.append(i)
             if bounds[i] <= elt:
                 toAdd = False
+                break
         if not toAdd:
             return
         removeIndex.reverse() #delete from the end, it does not destroy the structure

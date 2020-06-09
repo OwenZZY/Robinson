@@ -12,14 +12,13 @@ class LowerBounds(bds.Bounds):
         bounds = self.bounds
         toAdd = True
 
-        if elt.is_a_positive_bound():
-            return False
 
         for i in range(len(bounds)):
             if bounds[i] <= elt:
                 removeIndex.append(i)
             if elt <= bounds[i]:
                 toAdd = False
+                break
         if not toAdd:
             return
         removeIndex.reverse()

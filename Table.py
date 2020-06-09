@@ -50,7 +50,7 @@ class Table:
             self.table = [[None for _ in range(self.n)] for _ in range(self.n)]
             c_n = toCpy.n
             for i in range(c_n):
-                for j in range(c_n):
+                for j in range(i, c_n):
                     entry = toCpy.getAt(i, j)
                     self.table[i][j] = entry.cpy(type(entry))
                     self.table[j][i] = self.table[i][j]
@@ -138,9 +138,9 @@ class Table:
                     ret_bd = retT.joinBoundsAt(i,j, entry)
                     if i == j:
                         if isinstance(T1[0][0], ubds.UpperBounds):
-                            add_set_to_negative_bd(ret_bd)
-                        else:
                             add_set_to_positive_bd(ret_bd)
+                        else:
+                            add_set_to_negative_bd(ret_bd)
 
                 for k in range(j+1,n):
                     entry = T1[i][k] - T2[j][k]
@@ -149,9 +149,9 @@ class Table:
                     ret_bd = retT.joinBoundsAt(i,j,entry)
                     if i == j:
                         if isinstance(T1[0][0], ubds.UpperBounds):
-                            add_set_to_negative_bd(ret_bd)
-                        else:
                             add_set_to_positive_bd(ret_bd)
+                        else:
+                            add_set_to_negative_bd(ret_bd)
 
         return retT
 

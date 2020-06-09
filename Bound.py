@@ -30,14 +30,14 @@ class Bound:
     def is_a_negative_bound(self):
         N = self.negative_bound
         for n in N:
-            if n.divides(self):
+            if n.divides(self) or n<=self:
                 return True
         return False
 
     def is_a_positive_bound(self):
         P = self.positive_bound
         for p in P:  # p:bd.Bound
-            if p.divides(self):
+            if p.divides(self) or self<=p:
                 return True
         return False
 
@@ -59,7 +59,6 @@ class Bound:
                 if pm is None:
                     pr = r
                     pm = m
-
 
                 if pm != m:
                     return False
