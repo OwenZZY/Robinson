@@ -3,9 +3,38 @@ Define bound
 """
 import numpy as np
 
+
+def linearly_combine_for(T):
+    T_ = []
+    for u in T:
+        for v in T:
+            T_.append(u+v)
+    for t_ in T_:
+        T.append(t_)
+
+
 class Bound:
 
+    def linearly_combine(self):
+        linearly_combine_for(self.positive_bound)
+        linearly_combine_for(self.negative_bound)
+
+    def try_throw_in(self, elt, set: list):
+        if set == self.positive_bound:
+            if self.zero<= self:
+                return
+        else:
+            if self <= self.zero:
+                return
+        for bs in set:
+            bs: Bound
+            if bs.divides(elt):
+                return
+        set.append(elt)
+
     def add_to_positive_bound(self):
+        if self.zero <= self:
+            return
         add = True
         for b in self.positive_bound:
             if b.divides(self):
@@ -13,9 +42,12 @@ class Bound:
                 break
         if add:
             self.positive_bound.append(self)
-        pass
+            self.try_throw_in(self.zero - self, self.negative_bound)
+
 
     def add_to_negative_bound(self):
+        if self <= self.zero:
+            return
         add = True
         for b in self.negative_bound:
             if b.divides(self):
@@ -23,21 +55,23 @@ class Bound:
                 break
         if add:
             self.negative_bound.append(self)
+            self.try_throw_in(self.zero - self, self.positive_bound)
 
     positive_bound = [] # if upper bound + positive bound, then it is not a better upper bound.
     negative_bound = [] # if lower bound + negative bound, then it is not a better lower bound.
+    zero = 0
 
     def is_a_negative_bound(self):
         N = self.negative_bound
         for n in N:
-            if n.divides(self) or n<=self:
+            if n.divides(self) or self<=n:
                 return True
         return False
 
     def is_a_positive_bound(self):
         P = self.positive_bound
         for p in P:  # p:bd.Bound
-            if p.divides(self) or self<=p:
+            if p.divides(self) or p<=self:
                 return True
         return False
 

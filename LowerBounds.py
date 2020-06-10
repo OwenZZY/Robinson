@@ -1,5 +1,6 @@
 import UpperBounds as ubds
 import Bounds as bds
+import Bound as bd
 
 class LowerBounds(bds.Bounds):
     def whatami(self):
@@ -12,6 +13,9 @@ class LowerBounds(bds.Bounds):
         bounds = self.bounds
         toAdd = True
 
+        # elt: bd.Bound
+        if elt.is_a_negative_bound():
+            return False
 
         for i in range(len(bounds)):
             if bounds[i] <= elt:

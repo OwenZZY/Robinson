@@ -17,7 +17,9 @@ class UpperBounds(bds.Bounds):
         removeIndex = []
         bounds = self.bounds
         toAdd = True
-
+        # # elt:bd.Bound
+        if elt.is_a_positive_bound():
+             return False
 
         # put index of e's\in bounds s.t. elt < e in a removing list to remove
         for i in range(len(bounds)):

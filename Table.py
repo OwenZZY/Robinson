@@ -15,6 +15,19 @@ def add_set_to_positive_bd(set:list):
 
 
 class Table:
+
+    def detect_cycle(self):
+        n = self.n
+        T = self.table
+        for i in range(n):
+            bounds = T[i][i]
+            bounds:bds.Bounds
+            arr = bounds.getBounds()
+            if self.upper_table:
+                add_set_to_positive_bd(arr)
+            else:
+                add_set_to_negative_bd(arr)
+
     # n is the size of the table, toCpy is another Table to copy
     def __init__(self, n=1,  withArray=None, toCpy=None):
         if withArray is not None and toCpy is not None:
@@ -48,6 +61,8 @@ class Table:
             #                    + str(type(self))+ " expected.")
             self.n = len(toCpy)
             self.table = [[None for _ in range(self.n)] for _ in range(self.n)]
+            if isinstance(toCpy.getAt(0,0), ubds.UpperBounds):
+                self.upper_table = True
             c_n = toCpy.n
             for i in range(c_n):
                 for j in range(i, c_n):
@@ -136,22 +151,22 @@ class Table:
                     # print("("+ str(i)+ ","+str(j)+"): "
                     #       +str(T1[k][j]) + " - "+ str(T1[k][i]))
                     ret_bd = retT.joinBoundsAt(i,j, entry)
-                    if i == j:
-                        if isinstance(T1[0][0], ubds.UpperBounds):
-                            add_set_to_positive_bd(ret_bd)
-                        else:
-                            add_set_to_negative_bd(ret_bd)
+                    #                 if i == j:
+                # if isinstance(T1[0][0], ubds.UpperBounds):
+                #         add_set_to_positive_bd(ret_bd)
+                #     else:
+                #         add_set_to_negative_bd(ret_bd)
 
                 for k in range(j+1,n):
                     entry = T1[i][k] - T2[j][k]
                     # print("("+ str(i)+ ","+str(j)+"): "
                     #       +str(T1[i][k])+" - "+str(T2[j][k]))
                     ret_bd = retT.joinBoundsAt(i,j,entry)
-                    if i == j:
-                        if isinstance(T1[0][0], ubds.UpperBounds):
-                            add_set_to_positive_bd(ret_bd)
-                        else:
-                            add_set_to_negative_bd(ret_bd)
+                    # if i == j:
+                    #     if isinstance(T1[0][0], ubds.UpperBounds):
+                    #         add_set_to_positive_bd(ret_bd)
+                    #     else:
+                    #         add_set_to_negative_bd(ret_bd)
 
         return retT
 
