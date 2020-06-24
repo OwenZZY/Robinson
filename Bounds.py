@@ -3,8 +3,6 @@ Define Bounds
 """
 import Bound as bd
 
-
-
 class Bounds:
 
 
@@ -25,8 +23,9 @@ class Bounds:
 
     def cpy(self, BoundsType):
         ret = BoundsType()
+        ret:Bounds
         for e in self.bounds:
-            ret.union(e.cpy())
+            ret.bounds.append(e.cpy())
         return ret
 
     def __str__(self):

@@ -6,9 +6,9 @@ import numpy as np
 
 def linearly_combine_for(T):
     T_ = []
-    for u in T:
-        for v in T:
-            T_.append(u+v)
+    for i in range(len(T)):
+        for j in range(i, len(T)):
+            T_.append(T[i]+T[j])
     for t_ in T_:
         T.append(t_)
 
