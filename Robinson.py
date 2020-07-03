@@ -6,10 +6,10 @@ import Bound as bd
 def print_pn_bd():
     print("-----poss below-----")
     for b in bd.Bound.positive_bound:
-        print(b)
+        print(str(b) + ",")
     print("-----negs below-----")
     for b in bd.Bound.negative_bound:
-        print(b)
+        print(str(b) + ",")
     print("--------------------")
 
 class Robinson:
@@ -28,9 +28,9 @@ class Robinson:
         print(self.U[0])
         print("-----Initial Lower-----")
         print(self.L[0])
+        print("-----po/ne bounds-----")
         print_pn_bd()
 
-        pass
 
     def find_embedding(self):
         contradiction_at = (-1,-1)
@@ -50,7 +50,7 @@ class Robinson:
             U_alpha_1.detect_cycle()
             # print("Lower do things: is lower?")
             L_alpha_1.detect_cycle()
-            bd.Bound().linearly_combine()
+            bd.linearly_combine()
             self.alpha += 1
 
             print("Within table\n", self.U[self.alpha], "\nAway table\n", self.L[self.alpha])
@@ -93,7 +93,7 @@ class Robinson:
                 if G[i][j] != 0:
                     b_array = [0 for _ in range(k)]
                     b_array[G[i][j]-1] = 1
-                    curr.union(bd.Bound(ds=b_array))
+                    curr.union(bd.Bound(path=[i,j],ds=b_array))
                     #print(bd.Bound(ds=b_array))
                 T[i][j]=curr
         return tbl.Table(withArray=T)
@@ -109,7 +109,7 @@ class Robinson:
                 b_array = [0 for _ in range(k)]
                 if G[i][j] < k:
                     b_array[G[i][j]] = 1
-                b_curr = bd.Bound(ds=b_array)
+                b_curr = bd.Bound(path=[i,j], ds=b_array)
 
                 curr.union(b_curr)
 

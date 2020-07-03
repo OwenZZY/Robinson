@@ -14,6 +14,8 @@ class UpperBounds(bds.Bounds):
         :param elt:
         :return:
         """
+        if elt is None:
+            return False
         removeIndex = []
         bounds = self.bounds
         toAdd = True

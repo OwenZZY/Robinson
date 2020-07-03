@@ -4,13 +4,13 @@ import UpperBounds as ubds
 import LowerBounds as lbds
 
 
-def add_set_to_negative_bd(set:list):
-    for b in set:
+def add_set_to_negative_bd(target_set:list):
+    for b in target_set:
         b.add_to_negative_bound()
 
 
-def add_set_to_positive_bd(set:list):
-    for b in set:
+def add_set_to_positive_bd(target_set:list):
+    for b in target_set:
         b.add_to_positive_bound()
 
 
@@ -21,7 +21,6 @@ class Table:
         T = self.table
         for i in range(n):
             bounds = T[i][i]
-            bounds:bds.Bounds
             arr = bounds.getBounds()
             if self.upper_table:
                 add_set_to_positive_bd(arr)
@@ -88,7 +87,6 @@ class Table:
         for i in range(n):
             for j in range(n):
                 max_ = max(max_, len(T.getAt(i, j)))
-        a_size = 0
         for i in range(n):
             for j in range(n):
                 a_size = max_ - len(T.getAt(i, j))
@@ -146,27 +144,23 @@ class Table:
         retT = Table(toCpy=self)
         for i in range(n):
             for j in range(i, n):
+                bd.Bound.flip_first = True
                 for k in range(0, i):
                     entry = T1[k][j] - T2[k][i]
-                    # print("("+ str(i)+ ","+str(j)+"): "
-                    #       +str(T1[k][j]) + " - "+ str(T1[k][i]))
                     ret_bd = retT.joinBoundsAt(i,j, entry)
-                    #                 if i == j:
+                bd.Bound.flip_first = False
                 # if isinstance(T1[0][0], ubds.UpperBounds):
                 #         add_set_to_positive_bd(ret_bd)
                 #     else:
                 #         add_set_to_negative_bd(ret_bd)
 
+                bd.Bound.flip_second = True
                 for k in range(j+1,n):
                     entry = T1[i][k] - T2[j][k]
                     # print("("+ str(i)+ ","+str(j)+"): "
                     #       +str(T1[i][k])+" - "+str(T2[j][k]))
                     ret_bd = retT.joinBoundsAt(i,j,entry)
-                    # if i == j:
-                    #     if isinstance(T1[0][0], ubds.UpperBounds):
-                    #         add_set_to_positive_bd(ret_bd)
-                    #     else:
-                    #         add_set_to_negative_bd(ret_bd)
+                bd.Bound.flip_second = False
 
         return retT
 

@@ -9,6 +9,8 @@ class LowerBounds(bds.Bounds):
         super().__init__(toCpy=toCpy)
 
     def union(self, elt):
+        if elt is None:
+            return False
         removeIndex = []
         bounds = self.bounds
         toAdd = True
