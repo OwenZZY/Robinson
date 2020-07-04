@@ -128,7 +128,7 @@ class Table:
         retT = Table(toCpy=self)
         for i in range(self.n):
             for j in range(i+1, self.n):
-                for k in range(i+1, j):
+                for k in range(i+1, j-1):
                     entry = T1[i][k] + T2[k][j]
                     retT.joinBoundsAt(i, j, entry)
 
@@ -144,7 +144,7 @@ class Table:
         bd.Bound.flip = True
 
         for i in range(self.n):
-            for j in range(i+1, self.n):
+            for j in range(i, self.n):
                 if i == j: bd.Bound.working_with_diagonal = True
 
                 bd.Bound.concat_front = True

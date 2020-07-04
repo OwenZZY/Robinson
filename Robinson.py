@@ -46,15 +46,7 @@ class Robinson:
             L_alpha_1 = L_alpha_temp - U_alpha
             self.U.append(U_alpha_1)
             self.L.append(L_alpha_1)
-            # print("Upper do things: is upper?")
-            bd.Bound.working_with_diagonal = True
-            U_alpha_1.detect_cycle()
-            # print("Lower do things: is lower?")
-            L_alpha_1.detect_cycle()
-            # self.cycle(U_alpha_1, L_alpha_1)
-            # bd.linearly_combine()
 
-            bd.Bound.working_with_diagonal = False
             self.alpha += 1
             print("Tent within\n", U_alpha_temp, "\nTent away\n", L_alpha_temp)
             print("Within table\n", self.U[self.alpha], "\nAway table\n", self.L[self.alpha])

@@ -42,15 +42,11 @@ def cat_paths(path1_in:list, path2_in:list):
     The input expect an path [u,...,v] with u<v
     (so it starts from left, ends somewhere right)
     So the end of path1 should matches end of path 2
-    :param path1: list
-    :param path2: list
+    :param path1_in:
+    :param path2_in:
     :return:
     """
-    # print(path1, path2)
-    # if Bound.flip_first:
-    #     path1.reverse()
-    # if Bound.flip_second:
-    #     path2.reverse()
+
     if Bound.concat_back:
         path1 = path1_in[:]
         path2 = path2_in[:]
@@ -75,7 +71,7 @@ class Bound:
     negative_bound = []  # if lower bound + negative bound, then it is not a better lower bound.
     zero = None
     concat_front = False # True when k < i,j
-    concat_back = False # Truen when i,j < k
+    concat_back = False # True when i,j < k
     concat_freely = False
     working_with_diagonal = False
     flip = False
@@ -221,6 +217,7 @@ class Bound:
             return Bound(cat_paths(path1[:], path2[:]),
                          ds=ret)
         else:
+            print("Not expected addition")
             return Bound(path=[],ds=ret)
 
     def __sub__(self, other:Bound):
@@ -245,13 +242,19 @@ class Bound:
         if Bound.working_with_diagonal: dum = 1
         else: dum = 0
 
-        path1 = self.path[1:-1]
-        path2 = other.path[dum:]
-        for v in path1:
-            if v in path2:
-                return True
-        path1 = other.path[1:-1]
-        path2 = self.path[dum:]
+        if Bound.concat_back:
+            path1 = self.path[dum:]
+            path2 = other.path[:-1]
+        elif Bound.concat_front:
+            if dum == 1:
+                path1 = self.path[:-1]
+            else:
+                path1 = self.path[:]
+            path2 = other.path[1:]
+        else:
+            path1 = self.path[:]
+            path2 = other.path[1:]
+
         for v in path1:
             if v in path2:
                 return True
