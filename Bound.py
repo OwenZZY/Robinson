@@ -37,7 +37,7 @@ def try_throw_in(elt, target_set: list):
             return
     target_set.append(neg_elt)
 
-def cat_paths(path1:list, path2:list):
+def cat_paths(path1_in:list, path2_in:list):
     """
     The input expect an path [u,...,v] with u<v
     (so it starts from left, ends somewhere right)
@@ -47,10 +47,24 @@ def cat_paths(path1:list, path2:list):
     :return:
     """
     # print(path1, path2)
-    if Bound.flip_first:
-        path1.reverse()
-    if Bound.flip_second or Bound.working_with_diagonal:
+    # if Bound.flip_first:
+    #     path1.reverse()
+    # if Bound.flip_second:
+    #     path2.reverse()
+    if Bound.concat_back:
+        path1 = path1_in[:]
+        path2 = path2_in[:]
+    elif Bound.concat_front:
+        path2 = path1_in[:]
+        path1 = path2_in[:]
+    else:
+        path1 = path1_in[:]
+        path2 = path2_in[:]
+
+    if Bound.flip and Bound.concat_back:
         path2.reverse()
+    if Bound.flip and Bound.concat_front:
+        path1.reverse()
     if path1[len(path1)-1] != path2[0]:
         raise Exception("Mismatch path endpoints", str(path1), str(path2))
     return path1+path2[1:]
@@ -60,10 +74,11 @@ class Bound:
     positive_bound = []  # if upper bound + positive bound, then it is not a better upper bound.
     negative_bound = []  # if lower bound + negative bound, then it is not a better lower bound.
     zero = None
-    flip_first = False
-    flip_second = False
+    concat_front = False # True when k < i,j
+    concat_back = False # Truen when i,j < k
     concat_freely = False
     working_with_diagonal = False
+    flip = False
 
     def add_to_positive_bound(self):
         if Bound.zero <= self:
@@ -168,6 +183,8 @@ class Bound:
         return self.d[index]
 
     def __init__(self, path:list ,ds=None, dim=0, toCpy=None):
+        if path is None:
+            raise Exception("Path cannot be None")
         self.k = dim
         self.path = path
         if dim != 0:
@@ -211,30 +228,30 @@ class Bound:
             return None
         if self == Bound.zero:
             return Bound(path=other.path[:], ds= -other.d)
-        if Bound.flip_second:
-            if self.overlap_with(other):
-                return None
-        elif Bound.flip_first:
-            if other.overlap_with(self):
-                return None
+        if self.overlap_with(other):
+            return None
 
-        arr1 = self.d
-        arr2 = other.d
+        arr1, arr2 = self.d, other.d
         ret = arr1 - arr2
-        if Bound.flip_second or Bound.working_with_diagonal:
-            return Bound(cat_paths(self.path[:],other.path[:]), ds=ret)
-        elif Bound.flip_first:
-            return Bound(cat_paths(other.path[:], self.path[:]) ,ds= ret)
+        path = cat_paths(self.path[:], other.path[:])
 
+        ret = Bound(path, ds=ret)
+        if ret is None:
+            print("It is returning None! --subtraction")
 
-        # print("It is returning None! --subtraction")
-
+        return ret
 
     def overlap_with(self, other:Bound):
-        if Bound.working_with_diagonal:
-            dum = 0
-        path1 = self.path[dum:-1]
-        path2 = other.path[1:]
+        if Bound.working_with_diagonal: dum = 1
+        else: dum = 0
+
+        path1 = self.path[1:-1]
+        path2 = other.path[dum:]
+        for v in path1:
+            if v in path2:
+                return True
+        path1 = other.path[1:-1]
+        path2 = self.path[dum:]
         for v in path1:
             if v in path2:
                 return True

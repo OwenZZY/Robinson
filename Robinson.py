@@ -51,7 +51,7 @@ class Robinson:
             U_alpha_1.detect_cycle()
             # print("Lower do things: is lower?")
             L_alpha_1.detect_cycle()
-            self.cycle(U_alpha_1, L_alpha_1)
+            # self.cycle(U_alpha_1, L_alpha_1)
             # bd.linearly_combine()
 
             bd.Bound.working_with_diagonal = False

@@ -89,7 +89,7 @@ class Table:
             for j in range(n):
                 max_ = max(max_, len(T.getAt(i, j)))
         for i in range(n):
-            for j in range(n):
+            for j in range(i, n):
                 a_size = max_ - len(T.getAt(i, j))
                 ret +=  ("(" + str(i) + "," + str(j) + "): "
                          + str(T.getAt(i, j)))+"\t"+("\t" * int(a_size/3))
@@ -119,6 +119,7 @@ class Table:
         self.table[i][j] = bounds
 
     def __add__(self, otherT):
+        """No flag need to be checked"""
         T1, T2 = self.table, otherT.getTable()
         if not isinstance(T1[0][0], type(T2[0][0])):
             raise Exception("Table addition expect same Bounds Type, "
@@ -134,28 +135,32 @@ class Table:
         return retT
 
     def __sub__(self, otherT):
-        T1 = self.table
-        T2 = otherT.getTable()
+        T1, T2 = self.table, otherT.getTable()
         if isinstance(T1[0][0], type(T2[0][0])):
             raise Exception("Table subtraction expect different Bounds Type, "
                             + T1[0][0].whatami() + " and " + T2[0][0].whatami + " given")
-        n = self.n
-        retT = Table(toCpy=self)
-        for i in range(n):
-            for j in range(i+1, n):
 
-                bd.Bound.flip_first = True
+        retT = Table(toCpy=self)
+        bd.Bound.flip = True
+
+        for i in range(self.n):
+            for j in range(i+1, self.n):
+                if i == j: bd.Bound.working_with_diagonal = True
+
+                bd.Bound.concat_front = True
                 for k in range(0, i):
                     entry = T1[k][j] - T2[k][i]
                     ret_bd = retT.joinBoundsAt(i,j, entry)
-                bd.Bound.flip_first = False
+                bd.Bound.concat_front = False
 
-                bd.Bound.flip_second = True
-                for k in range(j+1,n):
+                bd.Bound.concat_back = True
+                for k in range(j+1, self.n):
                     entry = T1[i][k] - T2[j][k]
                     ret_bd = retT.joinBoundsAt(i,j,entry)
-                bd.Bound.flip_second = False
+                bd.Bound.concat_back = False
 
+                if i == j: bd.Bound.working_with_diagonal = False
+        bd.Bound.flip = False
         return retT
 
     def TypeTable(self):
