@@ -47,20 +47,25 @@ class Robinson:
             self.U.append(U_alpha_1)
             self.L.append(L_alpha_1)
             # print("Upper do things: is upper?")
+            bd.Bound.working_with_diagonal = True
             U_alpha_1.detect_cycle()
             # print("Lower do things: is lower?")
             L_alpha_1.detect_cycle()
-            bd.linearly_combine()
-            self.alpha += 1
+            self.cycle(U_alpha_1, L_alpha_1)
+            # bd.linearly_combine()
 
+            bd.Bound.working_with_diagonal = False
+            self.alpha += 1
+            print("Tent within\n", U_alpha_temp, "\nTent away\n", L_alpha_temp)
             print("Within table\n", self.U[self.alpha], "\nAway table\n", self.L[self.alpha])
             contradiction_at = self.no_contradiction()
             print("-------iter ", str(self.alpha), " ends-----")
             print_pn_bd()
+
         if contradiction_at != (-1,-1):
-            print(contradiction_at)
+            print("Contradiction at", contradiction_at)
         else:
-            print("Finded?", contradiction_at)
+            print("No contradiction", contradiction_at)
 
     def no_contradiction(self)->(int,int):
         L_T:lbds = self.L[self.alpha]
@@ -76,15 +81,28 @@ class Robinson:
                     return (i,j)
         return -1, -1
 
+    def cycle(self,U_T:tbl.Table, L_T:tbl.Table):
+        n = self.n
+        U = U_T.table
+        L = L_T.table
+        bd.Bound.flip_second = True
+        for i in range(n):
+            for k in range(i+1,n):
+                entry = U[i][k] - L[i][k]
+                U_T.joinBoundsAt(i,i, entry)
+                entry = L[i][k] - U[i][k]
+                L_T.joinBoundsAt(i,i, entry)
+        bd.Bound.flip_second = False
+
+
     def L_at(self, i):
         return self.L[i]
     def U_at(self, i):
         return self.U[i]
 
     def __constructInitialUpperBoundsTable(self):
-        n = self.n
-        k = self.k
-        G = self.G
+        n, k, G = self.n, self.k, self.G
+
         T = [[ubds.UpperBounds() for _ in range(n)] for _ in range(n)]
         for i in range(n):
             for j in range(i, n):
@@ -99,9 +117,8 @@ class Robinson:
         return tbl.Table(withArray=T)
 
     def __constructInitialLowerBoundsTable(self):
-        n = self.n
-        k = self.k
-        G = self.G
+        n, k, G = self.n, self.k, self.G
+
         T = [[lbds.LowerBounds() for _ in range(n)] for _ in range(n)]
         for i in range(n):
             for j in range(i, n):

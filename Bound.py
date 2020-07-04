@@ -49,7 +49,7 @@ def cat_paths(path1:list, path2:list):
     # print(path1, path2)
     if Bound.flip_first:
         path1.reverse()
-    if Bound.flip_second:
+    if Bound.flip_second or Bound.working_with_diagonal:
         path2.reverse()
     if path1[len(path1)-1] != path2[0]:
         raise Exception("Mismatch path endpoints", str(path1), str(path2))
@@ -63,6 +63,7 @@ class Bound:
     flip_first = False
     flip_second = False
     concat_freely = False
+    working_with_diagonal = False
 
     def add_to_positive_bound(self):
         if Bound.zero <= self:
@@ -76,7 +77,6 @@ class Bound:
             cpy = self.cpy()
             Bound.positive_bound.append(cpy)
             try_throw_in(cpy, Bound.negative_bound)
-
 
     def add_to_negative_bound(self):
         if self <= Bound.zero:
@@ -193,11 +193,11 @@ class Bound:
     def __add__(self, other):
         if self.__add_sub_error(other) is True:
             return None
+        if self.overlap_with(other):
+            return None
 
-        path1 = self.path
-        path2 = other.path
-        arr1 = self.d
-        arr2 = other.d
+        path1, path2 = self.path, other.path
+        arr1, arr2 = self.d, other.d
 
         ret = arr1 + arr2
         if not Bound.concat_freely:
@@ -211,15 +211,34 @@ class Bound:
             return None
         if self == Bound.zero:
             return Bound(path=other.path[:], ds= -other.d)
+        if Bound.flip_second:
+            if self.overlap_with(other):
+                return None
+        elif Bound.flip_first:
+            if other.overlap_with(self):
+                return None
 
         arr1 = self.d
         arr2 = other.d
         ret = arr1 - arr2
-        if Bound.flip_second:
+        if Bound.flip_second or Bound.working_with_diagonal:
             return Bound(cat_paths(self.path[:],other.path[:]), ds=ret)
         elif Bound.flip_first:
             return Bound(cat_paths(other.path[:], self.path[:]) ,ds= ret)
 
+
+        # print("It is returning None! --subtraction")
+
+
+    def overlap_with(self, other:Bound):
+        if Bound.working_with_diagonal:
+            dum = 0
+        path1 = self.path[dum:-1]
+        path2 = other.path[1:]
+        for v in path1:
+            if v in path2:
+                return True
+        return False
 
     def __add_sub_error(self, other):
         if not isinstance(other, type(self)):

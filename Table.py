@@ -17,8 +17,9 @@ def add_set_to_positive_bd(target_set:list):
 class Table:
 
     def detect_cycle(self):
-        n = self.n
-        T = self.table
+        n, T = self.n, self.table
+
+
         for i in range(n):
             bounds = T[i][i]
             arr = bounds.getBounds()
@@ -90,7 +91,8 @@ class Table:
         for i in range(n):
             for j in range(n):
                 a_size = max_ - len(T.getAt(i, j))
-                ret +=  ("(" + str(i) + "," + str(j) + "): " + str(T.getAt(i, j)))+"\t"+("\t" * int(a_size/3))
+                ret +=  ("(" + str(i) + "," + str(j) + "): "
+                         + str(T.getAt(i, j)))+"\t"+("\t" * int(a_size/3))
             ret += '\n'
 
         return ret
@@ -117,19 +119,16 @@ class Table:
         self.table[i][j] = bounds
 
     def __add__(self, otherT):
-        T1 = self.table
-        T2 = otherT.getTable()
+        T1, T2 = self.table, otherT.getTable()
         if not isinstance(T1[0][0], type(T2[0][0])):
             raise Exception("Table addition expect same Bounds Type, "
                             + T1[0][0].whatami() + " and "+  T2[0][0].whatami() + " given." )
 
         retT = Table(toCpy=self)
         for i in range(self.n):
-            for j in range(i, self.n):
-                for k in range(i, j):
+            for j in range(i+1, self.n):
+                for k in range(i+1, j):
                     entry = T1[i][k] + T2[k][j]
-                    # print("("+ str(i)+ ","+str(j)+"): "
-                    #       +str( T1[i][k] )+"+"+ str(T2[k][j]))
                     retT.joinBoundsAt(i, j, entry)
 
         return retT
@@ -143,22 +142,17 @@ class Table:
         n = self.n
         retT = Table(toCpy=self)
         for i in range(n):
-            for j in range(i, n):
+            for j in range(i+1, n):
+
                 bd.Bound.flip_first = True
                 for k in range(0, i):
                     entry = T1[k][j] - T2[k][i]
                     ret_bd = retT.joinBoundsAt(i,j, entry)
                 bd.Bound.flip_first = False
-                # if isinstance(T1[0][0], ubds.UpperBounds):
-                #         add_set_to_positive_bd(ret_bd)
-                #     else:
-                #         add_set_to_negative_bd(ret_bd)
 
                 bd.Bound.flip_second = True
                 for k in range(j+1,n):
                     entry = T1[i][k] - T2[j][k]
-                    # print("("+ str(i)+ ","+str(j)+"): "
-                    #       +str(T1[i][k])+" - "+str(T2[j][k]))
                     ret_bd = retT.joinBoundsAt(i,j,entry)
                 bd.Bound.flip_second = False
 
