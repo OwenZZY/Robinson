@@ -128,7 +128,7 @@ class Table:
         retT = Table(toCpy=self)
         for i in range(self.n):
             for j in range(i+1, self.n):
-                for k in range(i+1, j-1):
+                for k in range(i+1, j):
                     entry = T1[i][k] + T2[k][j]
                     retT.joinBoundsAt(i, j, entry)
 

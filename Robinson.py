@@ -48,7 +48,7 @@ class Robinson:
             self.L.append(L_alpha_1)
 
             self.alpha += 1
-            print("Tent within\n", U_alpha_temp, "\nTent away\n", L_alpha_temp)
+            # print("Tent within\n", U_alpha_temp, "\nTent away\n", L_alpha_temp)
             print("Within table\n", self.U[self.alpha], "\nAway table\n", self.L[self.alpha])
             contradiction_at = self.no_contradiction()
             print("-------iter ", str(self.alpha), " ends-----")

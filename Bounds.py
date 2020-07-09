@@ -33,7 +33,7 @@ class Bounds:
         B = self.bounds
         m = len(B)
         for i in range(m):
-            ret += str(B[i].path)
+            ret += str(B[i])
             if i < m-1:
                 ret+= ","
         ret += "}"
