@@ -73,20 +73,6 @@ class Robinson:
                     return (i,j)
         return -1, -1
 
-    def cycle(self,U_T:tbl.Table, L_T:tbl.Table):
-        n = self.n
-        U = U_T.table
-        L = L_T.table
-        bd.Bound.flip_second = True
-        for i in range(n):
-            for k in range(i+1,n):
-                entry = U[i][k] - L[i][k]
-                U_T.joinBoundsAt(i,i, entry)
-                entry = L[i][k] - U[i][k]
-                L_T.joinBoundsAt(i,i, entry)
-        bd.Bound.flip_second = False
-
-
     def L_at(self, i):
         return self.L[i]
     def U_at(self, i):

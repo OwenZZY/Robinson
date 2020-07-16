@@ -19,9 +19,6 @@ class UpperBounds(bds.Bounds):
         removeIndex = []
         bounds = self.bounds
         toAdd = True
-        # # elt:bd.Bound
-        if elt.is_a_positive_bound():
-             return False
 
         # put index of e's\in bounds s.t. elt < e in a removing list to remove
         for i in range(len(bounds)):
@@ -53,8 +50,7 @@ class UpperBounds(bds.Bounds):
         for u in U:
             for l in L:
                 l: bd.Bound
-                if l.is_a_negative_bound(): # need to do for all entries, if a negative_bound is subtracted, need to continue
-                    continue
+
                 ret.union(u-l)
         return ret
 
@@ -63,10 +59,6 @@ class UpperBounds(bds.Bounds):
         this = self.bounds
         other = otherB.getBounds()
         for b1 in this:
-            if b1.is_a_negative_bound():
-                continue
             for b2 in other:
-                if b2.is_a_negative_bound():
-                    continue
                 ret.union(b1+b2)
         return ret

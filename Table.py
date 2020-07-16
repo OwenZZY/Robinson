@@ -4,29 +4,7 @@ import UpperBounds as ubds
 import LowerBounds as lbds
 
 
-def add_set_to_negative_bd(target_set:list):
-    for b in target_set:
-        b.add_to_negative_bound()
-
-
-def add_set_to_positive_bd(target_set:list):
-    for b in target_set:
-        b.add_to_positive_bound()
-
-
 class Table:
-
-    def detect_cycle(self):
-        n, T = self.n, self.table
-
-
-        for i in range(n):
-            bounds = T[i][i]
-            arr = bounds.getBounds()
-            if self.upper_table:
-                add_set_to_positive_bd(arr)
-            else:
-                add_set_to_negative_bd(arr)
 
     # n is the size of the table, toCpy is another Table to copy
     def __init__(self, n=1,  withArray=None, toCpy=None):

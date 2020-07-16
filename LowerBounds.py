@@ -15,10 +15,6 @@ class LowerBounds(bds.Bounds):
         bounds = self.bounds
         toAdd = True
 
-        # elt: bd.Bound
-        if elt.is_a_negative_bound():
-            return False
-
         for i in range(len(bounds)):
             if bounds[i] <= elt:
                 removeIndex.append(i)
@@ -41,8 +37,6 @@ class LowerBounds(bds.Bounds):
         U = U_Bds.getBounds()
         for l in L:
             for u in U:
-                if u.is_a_positive_bound():
-                    continue
                 ret.union(l - u)
         return ret
 
@@ -51,10 +45,6 @@ class LowerBounds(bds.Bounds):
         this = self.bounds
         other = otherB.getBounds()
         for b1 in this:
-            if b1.is_a_positive_bound():
-                continue
             for b2 in other:
-                if b2.is_a_positive_bound():
-                    continue
                 ret.union(b1+b2)
         return ret

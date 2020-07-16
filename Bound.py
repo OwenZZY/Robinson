@@ -6,37 +6,6 @@ from __future__ import annotations
 import numpy as np
 
 
-def _linearly_combine_for(T):
-    T_ = []
-    for i in range(len(T)):
-        for j in range(i, len(T)):
-            sum_ = T[i]+T[j]
-            if sum_ is None:
-                continue
-            T_.append(sum_)
-    for t_ in T_:
-        T.append(t_)
-
-def linearly_combine():
-    Bound.concat_freely = True
-    _linearly_combine_for(Bound.positive_bound)
-    _linearly_combine_for(Bound.negative_bound)
-    Bound.concat_freely = False
-
-def try_throw_in(elt, target_set: list):
-    neg_elt = Bound.zero - elt
-
-    if target_set == Bound.positive_bound:
-        if Bound.zero <= elt:
-            return
-    else:
-        if elt <= Bound.zero:
-            return
-    for bs in target_set:
-        if bs.divides(neg_elt):
-            return
-    target_set.append(neg_elt)
-
 def cat_paths(path1_in:list, path2_in:list):
     """
     The input expect an path [u,...,v] with u<v
@@ -76,45 +45,6 @@ class Bound:
     working_with_diagonal = False
     flip = False
 
-    def add_to_positive_bound(self):
-        if Bound.zero <= self:
-            return
-        add = True
-        for b in Bound.positive_bound:
-            if b.divides(self):
-                add = False
-                break
-        if add:
-            cpy = self.cpy()
-            Bound.positive_bound.append(cpy)
-            try_throw_in(cpy, Bound.negative_bound)
-
-    def add_to_negative_bound(self):
-        if self <= Bound.zero:
-            return
-        add = True
-        for b in Bound.negative_bound:
-            if b.divides(self):
-                add = False
-                break
-        if add:
-            cpy = self.cpy()
-            Bound.negative_bound.append(cpy)
-            try_throw_in(cpy, Bound.positive_bound)
-
-    def is_a_negative_bound(self):
-        N = self.negative_bound
-        for n in N:
-            if n.divides(self) or self<=n:
-                return True
-        return False
-
-    def is_a_positive_bound(self):
-        P = self.positive_bound
-        for p in P:  # p:bd.Bound
-            if p.divides(self) or p<=self:
-                return True
-        return False
 
     def divides(self, other):
         """
