@@ -56,8 +56,10 @@ class Robinson:
 
         if contradiction_at != (-1,-1):
             print("Contradiction at", contradiction_at)
-        else:
-            print("No contradiction", contradiction_at)
+            return False
+
+        print("No contradiction", contradiction_at)
+        return True
 
     def no_contradiction(self)->(int,int):
         L_T:lbds = self.L[self.alpha]
