@@ -86,14 +86,16 @@ class Robinson:
         T = [[ubds.UpperBounds() for _ in range(n)] for _ in range(n)]
         for i in range(n):
             for j in range(i, n):
-                curr = T[i][j]
 
+                curr = T[i][j]
+                # if i == j:
+                #     curr.union(bd.Bound(path = [i,j], ds= [0 for _ in range(k)]))
                 if G[i][j] != 0:
                     b_array = [0 for _ in range(k)]
                     b_array[G[i][j]-1] = 1
                     curr.union(bd.Bound(path=[i,j],ds=b_array))
                     #print(bd.Bound(ds=b_array))
-                T[i][j]=curr
+                T[j][i]=curr
         return tbl.Table(withArray=T)
 
     def __constructInitialLowerBoundsTable(self):
@@ -110,5 +112,5 @@ class Robinson:
 
                 curr.union(b_curr)
 
-                T[i][j] = curr
+                T[j][i] = curr
         return tbl.Table(withArray=T)

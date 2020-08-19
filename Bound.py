@@ -152,10 +152,13 @@ class Bound:
 
     def __sub__(self, other:Bound):
         if self.__add_sub_error(other) is True:
+            # print("Add sub error")
             return None
         if self == Bound.zero:
+            # print("Negates")
             return Bound(path=other.path[:], ds= -other.d)
         if self.overlap_with(other):
+            # print("Overlap error")
             return None
 
         arr1, arr2 = self.d, other.d
