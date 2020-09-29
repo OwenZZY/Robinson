@@ -8,6 +8,14 @@ def union_at(theTable:list, theBounds:Bounds, at_i: int, at_j: int):
     for bs in theBounds.getBounds():
         theTable[at_i][at_j].union(bs)
 
+def no_contradiction(Us, Ls, n)->(int,int):
+    for i in range(n):
+        for j in range(i, n):
+            if Ls[i][j].causes_contradiction(Us[i][j]):
+                print(str(Ls[i][j]),  " versus ",Us[i][j])
+                return i, j
+    return -1, -1
+
 k = 2
 G = [ [ 2, 2, 1, 0, 0 ],
       [ 2, 2, 2, 1, 1 ],
@@ -56,6 +64,7 @@ for i in range(n):
 #
 #
 #
+contradiction_at = (-1,-1)
 for k in range(n):
     for i in range(n):
         for j in range(i, n):
@@ -91,6 +100,10 @@ for k in range(n):
 
             if i == j:
                 Bound.Bound.working_with_diagonal = False
+
+    if no_contradiction(UBs, LBs, n) != (-1,-1):
+        print("Contradiction at", contradiction_at)
+        exit(0)
 
     print("==========iter ", k,"============")
     for i in range(n):

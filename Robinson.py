@@ -12,6 +12,15 @@ def print_pn_bd():
         print(str(b) + ",")
     print("--------------------")
 
+######
+#
+# Usage:
+#    define some Robinson matrix G, provide some k, it suppose to be the number of distinct values of entries of G
+#    R = Robinson(G,k)
+#    R.find_embedding() done
+#
+#####
+
 class Robinson:
 
     def __init__(self, G, k):
