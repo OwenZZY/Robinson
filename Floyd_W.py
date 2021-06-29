@@ -2,7 +2,7 @@ import Bound
 import Bounds
 import LowerBounds
 import UpperBounds
-Bound.Bound.zero = Bound.Bound(path=[],ds=[0,0])
+Bound.Bound.zero = Bound.Bound(path=[],ds=[0,0,0])
 
 def union_at(theTable:list, theBounds:Bounds, at_i: int, at_j: int):
     for bs in theBounds.getBounds():
@@ -17,12 +17,13 @@ def no_contradiction(Us, Ls, n)->(int,int):
     return -1, -1
 
 k = 2
-G = [ [ 2, 2, 1, 0, 0 ],
-      [ 2, 2, 2, 1, 1 ],
-      [ 1, 2, 2, 2, 1 ],
-      [ 0, 1, 2, 2, 2 ],
-      [ 0, 1, 1, 2, 2 ] ]
-
+G = [[2 ,  2 , 0 , 0 , 0 , 0 , 0],
+    [2 , 2 , 2 , 1 , 1 , 1 , 1],
+    [0 , 2 , 2 , 2 , 1 , 1 , 1],
+    [0 , 1 , 2 , 2 , 2 , 1 , 1],
+    [0 , 1 , 1 , 2 , 2 , 2 , 1],
+    [0 , 1 , 1 , 1 , 2 , 2 , 2 ],
+    [0 , 1 , 1 , 1 , 1 , 2 , 2]]
 n = len(G)
 
 UBs = [[UpperBounds.UpperBounds() for _ in range(n) ] for _ in range(n)]
@@ -101,17 +102,20 @@ for k in range(n):
             if i == j:
                 Bound.Bound.working_with_diagonal = False
 
-    if no_contradiction(UBs, LBs, n) != (-1,-1):
-        print("Contradiction at", contradiction_at)
-        exit(0)
 
     print("==========iter ", k,"============")
     for i in range(n):
         for j in range(i, n):
-            print(UBs[i][j], "\t", end='')
+
+            print("(",str(i+1),",", str(j+1), "): ", UBs[i][j], "\t", end='')
         print("")
     print("\n")
     for i in range(n):
         for j in range(i, n):
-            print(LBs[i][j], "\t", end='')
+            print("(",str(i+1),",", str(j+1), "): ", LBs[i][j], "\t", end='')
         print("")
+
+    contradiction_at = no_contradiction(UBs, LBs, n)
+    if contradiction_at != (-1, -1):
+        print("Contradiction at", contradiction_at)
+        # exit(0)

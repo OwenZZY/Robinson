@@ -1,17 +1,21 @@
-import scipy
-
-import Bounds as bds
 import Bound as bd
-import Table as tbl
-import UpperBounds as ubds
-import LowerBounds as lbds
 import Robinson as Rob
 import numpy as np
-from scipy.optimize import linprog
 
-
-
-bd.Bound.zero = bd.Bound(path=[],ds=[0,0])
+def embed_with(Pi, d):
+    print("Pi=", Pi)
+    print("D=", d)
+    A = np.zeros((n, n))
+    for d_t in d:
+        A_i = np.zeros((n, n))
+        # print(d_t)
+        for u in range(n):
+            for v in range(n):
+                if abs(Pi[u] - Pi[v])<=d_t:
+                    A_i[u,v]=1
+        print(A_i)
+        A += A_i
+    return A
 
 # G = [ [ 2, 2, 1, 0, 0, 0 ],
 #       [ 2, 2, 2, 1, 1, 1 ],
@@ -24,14 +28,27 @@ bd.Bound.zero = bd.Bound(path=[],ds=[0,0])
 
 
 k = 2
+bd.Bound.zero = bd.Bound(path=[],ds=[0 for _ in range(k)])
+# G = [[3, 2, 1, 1, 0, 0, 0],
+#      [2, 3, 3, 2, 1, 1, 0],
+#      [1, 3, 3, 2, 1, 1, 0],
+#      [1, 2, 2, 3, 2, 2, 1],
+#      [0, 1, 1, 2, 3, 2, 1],
+#      [0, 1, 1, 2, 2, 3, 2],
+#      [0, 0, 0, 1, 1, 2, 3 ]]
 G = [ [ 2, 2, 1, 0, 0 ],
       [ 2, 2, 2, 1, 1 ],
       [ 1, 2, 2, 2, 1 ],
       [ 0, 1, 2, 2, 2 ],
       [ 0, 1, 1, 2, 2 ] ]
-# G = [[2,2,1],
-#      [2,2,2],
-#      [1,2,2]]
+#
+# G = [ [ 2, 2, 1, 0, 0, 0 ],
+#       [ 2, 2, 2, 1, 1, 1 ],
+#       [ 1, 2, 2, 2, 2, 1 ],
+#       [ 0, 1, 2, 2, 2, 2 ], # copied vertex
+#       [ 0, 1, 2, 2, 2, 2 ], # new vertex
+#       [ 0, 1, 1, 2, 2, 2 ] ]
+
 n = len(G)
 
 R = Rob.Robinson(G,  k = k)
@@ -48,11 +65,10 @@ L = R.L_at(R.alpha).table
 scalar_upperbd = [[[] for _ in range(n) ] for _ in range(n) ]
 scalar_lowerbd = [[[] for _ in range(n) ] for _ in range(n) ]
 
+# d = np.array([2.1703,  1.18741, 0.05664])
 
-
-# d = np.array([1,1.1/3]) # works
-d=[1, 0.8] # does not work
-#d = np.array([1, 1.1/3])
+# d = np.array([2.01415, 1.53683])
+d = np.array([2, 1.5])
 for u in range(n):
     for v in range(u, n):
         B_uv = U[u][v].bounds
@@ -66,74 +82,46 @@ for u in range(n):
             if not (scalar in scalar_lowerbd[u][v]):
                 scalar_lowerbd[u][v].append(np.dot(b.d,d))
 
+# useless, just printing
+for u in range(n):
+    for v in range(n):
+        if v<u:
+            print("[] ",end="\t")
+        else:
+            print(scalar_upperbd[u][v],end="\t")
+    print()
+print()
+for u in range(n):
+    for v in range(n):
+        if v<u:
+            print("[] ",end="\t")
+        else:
+            print(scalar_lowerbd[u][v],end="\t")
+    print()
 
-# for u in range(n):
-#     for v in range(n):
-#         if v<u:
-#             print("[] ",end="\t")
-#         else:
-#             print(scalar_upperbd[u][v],end="\t")
-#     print()
-# print()
-# for u in range(n):
-#     for v in range(n):
-#         if v<u:
-#             print("[] ",end="\t")
-#         else:
-#             print(scalar_lowerbd[u][v],end="\t")
-#     print()
-
-
-scalar_upperbd = [[[0.8, 0.2, 1.4],[0.8],[1.0, 1.6],[1.8, 2.4],[1.8, 3.2]],
-[[] ,[0.8, 0.2, 1.4],[0.8, 0.2],[1.0, 1.6],[1.0, 2.4]],
-[[] ,[] ,[0.8, 0.2, 1.4],[0.8],[1.0, 1.6]],
-[[] ,[] ,[] ,[0.8, 0.2, 1.4],[0.8, 0.2]],
-[[] ,[] ,[] ,[] ,[0.8, 0.2, 2.2]]]
-scalar_lowerbd = [[[0.0, -1.4],	[0.0, 0.6, -0.6],	[0.8, 0.2],	[1.0, 1.4],	[1.0, 1.6]],
-[[], 	[0.0, -1.4],	[0.0, -0.6],	[0.8, 0.2],	[0.8, 0.2]	],
-[[], 	[],	[0.0, -1.4],	[0.0, -0.6, 0.6],	[0.8, -0.6]	],
-[[], 	[], 	[] ,	[0.0, -1.4],	[0.0, -1.4]	],
-[[], 	[], 	[] ,	[] ,	[0.0, -2.2]]]
-
-print((scalar_upperbd), "\n", (scalar_lowerbd))
-n=5
-eps = 3
-for i in range(n):
-    for j in range(i,n):
-        for ub in scalar_upperbd[i][j]:
-            for lb in scalar_lowerbd[i][j]:
-                if (ub-lb)<=eps:
-                    print(i,",",j,": ",  ub-lb)
-                    eps = ub-lb
-
-eps = 0.201
-print("eps=", eps)
+Wrong = False
+for u in range(n):
+    for v in range(u,n):
+        if max(scalar_lowerbd[u][v]) > min(scalar_upperbd[u][v]):
+            print("Contradiction at: (", u ,",", v,"):", max(scalar_lowerbd[u][v]), ",", min(scalar_upperbd))
+            Wrong = True
+print("There is ", end="")
+if not Wrong: print("no ", end="")
+print("wrong\n")
 
 
-
-Pi=[0,0,0,0,0]
+Pi=[0 for _ in range(n)]
 Pi[0]=0
-for v in range(1, n):
-    Pi[v] = max([Pi[i]+ max(scalar_lowerbd[i][v]) for i in range(v)]) + (eps/2)
-# Pi= [0, 0.601, 0.801, 1.402, 1.601]
-d=[1, 0.8]
-# for v in range(1,n):
-#     Pi[v] = Pi[0]+ max(scalar_lowerbd[0][v]) + eps/2
-# Pi[1]=max(scalar_lowerbd[0][1]) + eps/2
-# Pi[2]=max(scalar_lowerbd[0][2]) + eps/2
-# Pi[3]=max(scalar_lowerbd[0][3]) + eps/2
-# Pi[4]=max([Pi[i]+ max(scalar_lowerbd[i][4]) for i in range(n)]) + eps/2 #=1.06#scalar_lowerbd[0][4][0] + eps/2
-print("Pi=", Pi)
-print("D=", d)
-A = np.zeros((n, n))
-for d_t in d:
-    A_i = np.zeros((n, n))
-    # print(d_t)
-    for u in range(n):
-        for v in range(n):
-            if (abs(Pi[u]-Pi[v])<=d_t):
-                A_i[u,v]=1
-    print(A_i)
-    A += A_i
 
-print(np.array(A))
+for v in range(1,n):
+    lb = max([Pi[i]+ max(scalar_lowerbd[i][v]) for i in range(v)])
+    ub = min([Pi[i]+ min(scalar_upperbd[i][v]) for i in range(v)])
+    if lb>=ub:
+        print("wrong")
+    Pi[v] = (ub+lb)/2
+    pass
+
+print(Pi)
+# Pi = [0, 1.29817, 1.65616, 3.014, 3.252655]
+
+print(np.array(embed_with(Pi, d)))
