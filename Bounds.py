@@ -3,8 +3,8 @@ Define Bounds
 """
 import Bound as bd
 
-class Bounds:
 
+class Bounds:
 
     def whatami(self):
         return "Bounds"
@@ -13,7 +13,7 @@ class Bounds:
         self.bounds = []
         if toCpy is not None:
             if not isinstance(toCpy, Bounds):
-                raise Exception("Not a Bounds Var, a " + str(type(toCpy))+ " given" )
+                raise Exception("Not a Bounds Var, a " + str(type(toCpy)) + " given")
             L = toCpy.getBounds()
             for e in L:
                 self.bounds.append(e)
@@ -23,7 +23,7 @@ class Bounds:
 
     def cpy(self, BoundsType):
         ret = BoundsType()
-        ret:Bounds
+        ret: Bounds
         for e in self.bounds:
             ret.bounds.append(e.cpy())
         return ret
@@ -34,19 +34,17 @@ class Bounds:
         m = len(B)
         for i in range(m):
             ret += str(B[i])
-            if i < m-1:
-                ret+= ","
+            if i < m - 1:
+                ret += ","
         ret += "}"
         return ret
 
     def getBounds(self):
         return self.bounds
 
-
-    def union(self, elt:bd):
+    def union(self, elt: bd):
         # default union move
         self.bounds.append(elt)
-
 
     def causes_contradiction(self, otherB):
         """
@@ -54,12 +52,16 @@ class Bounds:
         :param otherB:
         :return:
         """
-        if len(self.bounds)==0 or len(otherB)==0:
+        if len(self.bounds) == 0 or len(otherB) == 0:
             return False
         L = self.bounds
         U = otherB.getBounds()
         for u in U:
             for l in L:
+                u: bd.Bound
+                l: bd.Bound
                 if u == l or u <= l:
+                    print("Upper bound ", u.get_array(), "with path ", u.path,
+                          "\n and Lower bound", l.get_array(), "with path ", l.path, " causes contradiction")
                     return True
         return False

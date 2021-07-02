@@ -2,9 +2,9 @@ import Bound
 import Bounds
 import LowerBounds
 import UpperBounds
-Bound.Bound.zero = Bound.Bound(path=[],ds=[0,0,0])
 
-def union_at(theTable:list, theBounds:Bounds, at_i: int, at_j: int):
+
+def add_bound_to(theTable:list, theBounds:Bounds, at_i: int, at_j: int):
     for bs in theBounds.getBounds():
         theTable[at_i][at_j].union(bs)
 
@@ -17,17 +17,34 @@ def no_contradiction(Us, Ls, n)->(int,int):
     return -1, -1
 
 k = 2
-G = [[2 ,  2 , 0 , 0 , 0 , 0 , 0],
-    [2 , 2 , 2 , 1 , 1 , 1 , 1],
-    [0 , 2 , 2 , 2 , 1 , 1 , 1],
-    [0 , 1 , 2 , 2 , 2 , 1 , 1],
-    [0 , 1 , 1 , 2 , 2 , 2 , 1],
-    [0 , 1 , 1 , 1 , 2 , 2 , 2 ],
-    [0 , 1 , 1 , 1 , 1 , 2 , 2]]
+G = []
+
+# G = [[2 ,  2 , 0 , 0 , 0 , 0 , 0],
+#     [2 , 2 , 2 , 1 , 1 , 1 , 1],
+#     [0 , 2 , 2 , 2 , 1 , 1 , 1],
+#     [0 , 1 , 2 , 2 , 2 , 1 , 1],
+#     [0 , 1 , 1 , 2 , 2 , 2 , 1],
+#     [0 , 1 , 1 , 1 , 2 , 2 , 2 ],
+#     [0 , 1 , 1 , 1 , 1 , 2 , 2]]
+# G = [ [ 2, 2, 1, 0, 0, 0 ],
+#       [ 2, 2, 2, 1, 1, 1 ],
+#       [ 1, 2, 2, 2, 1, 1 ],
+#       [ 0, 1, 2, 2, 2, 1 ],
+#       [ 0, 1, 1, 2, 2, 2 ],
+#       [ 0, 1, 1, 1, 2, 2 ] ]
+G = [[2, 2, 1, 0, 0],
+     [2, 2, 2, 1, 1],
+     [1, 2, 2, 2, 1],
+     [0, 1, 2, 2, 2],
+     [0, 1, 1, 2, 2]]
 n = len(G)
+print(G)
+
+Bound.Bound.zero = Bound.Bound(path=[],ds=[0 for _ in range(k)])
 
 UBs = [[UpperBounds.UpperBounds() for _ in range(n) ] for _ in range(n)]
 LBs = [[LowerBounds.LowerBounds() for _ in range(n) ] for _ in range(n)]
+
 
 # FW initialization
 for i in range(n):
@@ -46,6 +63,17 @@ for i in range(n):
         b_curr = Bound.Bound(path=[i, j], ds=b_array)
         LBs[i][j].union(b_curr)
         LBs[j][i] = LBs[i][j]
+
+for i in range(n):
+    for j in range(i, n):
+
+        print("(",str(i+1),",", str(j+1), "): ", UBs[i][j], "\t", end='')
+    print("")
+print("\n")
+for i in range(n):
+    for j in range(i, n):
+        print("(",str(i+1),",", str(j+1), "): ", LBs[i][j], "\t", end='')
+    print("")
 
 # FW recursion
 # Flags: all flags work concatenating the walks of bounds.
@@ -66,36 +94,38 @@ for i in range(n):
 #
 #
 contradiction_at = (-1,-1)
-for k in range(n):
+for s in range(n):
     for i in range(n):
         for j in range(i, n):
+            if i == s or j == s:
+                continue
             if i == j:
                 Bound.Bound.working_with_diagonal = True
-            if i < k < j:
-                ub_union = UBs[i][k] + UBs[k][j]
-                union_at(theTable= UBs, theBounds= ub_union, at_i= i, at_j= j)
+            if i < s < j:
+                ub_union = UBs[i][s] + UBs[s][j]
+                add_bound_to(theTable= UBs, theBounds= ub_union, at_i= i, at_j= j)
 
-                lb_union = LBs[i][k] + LBs[k][j]
-                union_at(theTable= LBs, theBounds= lb_union, at_i = i, at_j= j)
+                lb_union = LBs[i][s] + LBs[s][j]
+                add_bound_to(theTable= LBs, theBounds= lb_union, at_i = i, at_j= j)
 
-            elif j <= k:
+            elif j < s:
                 Bound.Bound.flip = True
                 Bound.Bound.concat_back = True
-                ub_union = UBs[i][k] - LBs[k][j]
-                union_at(theTable= UBs, theBounds = ub_union, at_i=i, at_j= j)
-                lb_union = LBs[i][k] - UBs[k][j]
-                union_at(theTable= LBs, theBounds= lb_union, at_i=i, at_j=j)
+                ub_union = UBs[i][s] - LBs[s][j]
+                add_bound_to(theTable= UBs, theBounds = ub_union, at_i=i, at_j= j)
+                lb_union = LBs[i][s] - UBs[s][j]
+                add_bound_to(theTable= LBs, theBounds= lb_union, at_i=i, at_j=j)
                 Bound.Bound.concat_back = False
                 Bound.Bound.flip = False
 
 
-            elif k<= i :
+            elif s < i :
                 Bound.Bound.flip = True
                 Bound.Bound.concat_front = True
-                ub_union = UBs[k][j] - LBs[i][k]
-                union_at(theTable= UBs, theBounds= ub_union, at_i=i, at_j=j)
-                lb_union = LBs[k][j] - UBs[i][k]
-                union_at(theTable= LBs, theBounds= lb_union, at_i=i, at_j=j)
+                ub_union = UBs[s][j] - LBs[i][s]
+                add_bound_to(theTable= UBs, theBounds= ub_union, at_i=i, at_j=j)
+                lb_union = LBs[s][j] - UBs[i][s]
+                add_bound_to(theTable= LBs, theBounds= lb_union, at_i=i, at_j=j)
                 Bound.Bound.concat_front = False
                 Bound.Bound.flip = False
 
@@ -103,10 +133,9 @@ for k in range(n):
                 Bound.Bound.working_with_diagonal = False
 
 
-    print("==========iter ", k,"============")
+    print("==========iter ", s,"============")
     for i in range(n):
         for j in range(i, n):
-
             print("(",str(i+1),",", str(j+1), "): ", UBs[i][j], "\t", end='')
         print("")
     print("\n")
@@ -119,3 +148,4 @@ for k in range(n):
     if contradiction_at != (-1, -1):
         print("Contradiction at", contradiction_at)
         # exit(0)
+
