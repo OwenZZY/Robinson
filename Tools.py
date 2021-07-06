@@ -7,7 +7,106 @@ import LowerBounds
 import UpperBounds
 import numpy as np
 
-#
+""" 
+:param G    the adjacency matrix of a graph
+:param n    the size of the graph 
+:param k    the number of levels in the graph
+:return Pi  the embedding of a graph
+:return d   if k!=2, then d is the computed threshold vector of a graph
+            if k==2, then d is k pairs of range
+"""
+
+
+def the_complete_procedure(G, n, k):
+    Bound.Bound.zero = Bound.Bound(path=[], ds=[0 for _ in range(k)])
+
+    UBW, LBW = Bound_Generation_mod(G, n, k)
+
+    if UBW == False:
+        return
+
+    contradiction_exists = False
+    for i in range(n):
+        for j in range(n):
+            if LBW[i][j].causes_contradiction(UBW[i][j]):
+                print("Causes Contradiction at (", i, ",", j, ")")
+                contradiction_exists = True
+    if contradiction_exists:
+        exit(0)
+
+    compute_cycles(UBW=UBW, LBW=LBW, n=n)
+
+    # if k == 2:
+    #     print("Do something")
+    #     pass
+    if k != 0:
+        print("\nStart constructing a linear program, note linprog maximizes elements wrt -Ad<=0..")
+        LinProg = compute_linear_program(UBW, LBW, n, k)
+
+        if LinProg.x[k] <= 0:
+            print("No solution, z<0")
+            exit(0)
+
+        readable_solution = scale_to_readable_numbers(LinProg.x)
+        print("[d_1, d_2, ..., d_k, z] = ", readable_solution, "\n")
+        d = np.array(readable_solution[:-1])
+
+        scalar_upperbd, scalar_lowerbd = compute_scalar_bounds(UBW, LBW, n=n, d=d)
+        # print(np.array(scalar_lowerbd))
+        # print(np.array(scalar_upperbd))
+    else:
+        scalar_upperbd, scalar_lowerbd = None, None
+
+    Pi = compute_a_uniform_embedding(scalar_upperbd, scalar_lowerbd, n)
+    return Pi, d
+
+
+def construct_the_constrain_matrix(UBW, LBW, n, k):
+    ConstrainMatrix = []
+    for i in range(n):
+        for B in UBW[i][i].getBounds():
+            constrain = list(B.get_array()[:])
+            constrain.append(-1)
+            if ConstrainMatrix.__contains__(constrain):
+                continue
+            ConstrainMatrix.append(constrain)
+    for k_ in range(k - 1):
+        constrain = [0 for _ in range(k + 1)]
+        constrain[-1] = -1
+        constrain[k_] = 1
+        constrain[k_ + 1] = -1
+        if ConstrainMatrix.__contains__(constrain):
+            continue
+        ConstrainMatrix.append(constrain)
+    constrain = [0 for _ in range(k + 1)]
+    constrain[-1] = -1
+    constrain[-2] = 1
+    if ConstrainMatrix.__contains__(constrain):
+        pass
+    ConstrainMatrix.append(constrain)
+    return ConstrainMatrix
+
+
+def compute_linear_program(ConstrainMatrix, k):
+    Zeros = [0 for _ in range(len(ConstrainMatrix))]
+    dummy = [0 for _ in range(k + 1)]
+    dummy[-1] = -1
+    # print("Dummy variable", dummy)
+    # print("Constrain matrix, Ax -z >= 0\n", np.array(ConstrainMatrix))
+    # print("Modify the Constrain matrix, and get -Ax +z <=0 \n", -np.array(ConstrainMatrix))
+    # print("Zeros as upper bounds\n", list(Zeros))
+
+    variable_ranges = [(0, None) for _ in range(k + 1)]
+    variable_ranges[k] = (-.1, .1)
+    LinProg = linprog(dummy,
+                      A_ub=-np.array(ConstrainMatrix),
+                      b_ub=list(Zeros),
+                      bounds=variable_ranges)
+
+    print("Linear Program multiplied solution: \n", np.dot(np.array(ConstrainMatrix), LinProg.x))
+    print("\nLinear program computed, print result: \n", np.array(LinProg.x), "\n")
+    return LinProg
+
 
 def add_bound_to(theTable: list, theBounds: Bounds, at_i: int, at_j: int):
     for bs in theBounds.getBounds():
@@ -52,9 +151,12 @@ def embed_with(Pi, d, n):
         A += A_i
     return A
 
+
 '''
 Robinson matrix A in S^n[k]
 '''
+
+
 def Bound_Generation_mod(G: list, n, k):
     UBW = [[UpperBounds.UpperBounds() for _ in range(n)] for _ in range(n)]
     LBW = [[LowerBounds.LowerBounds() for _ in range(n)] for _ in range(n)]
@@ -73,15 +175,16 @@ def Bound_Generation_mod(G: list, n, k):
                 b_minus_ij[G[i][j]] = 1
             LBW[i][j].union(Bound.Bound(path=[i, j], ds=b_minus_ij))
     print("Initialization completed..")
-    for i in range(n):
-        for j in range(i, n):
-            print("(", str(i), ",", str(j), "): ", UBW[i][j], "\t", end='')
-        print("")
-    print("\n")
-    for i in range(n):
-        for j in range(i, n):
-            print("(", str(i), ",", str(j), "): ", LBW[i][j], "\t", end='')
-        print("")
+    # for i in range(n):
+    #     for j in range(i, n):
+    #         print("(", str(i), ",", str(j), "): ", UBW[i][j], "\t", end='')
+    #     print("")
+    # print("\n")
+    # for i in range(n):
+    #     for j in range(i, n):
+    #         print("(", str(i), ",", str(j), "): ", LBW[i][j], "\t", end='')
+    #     print("")
+
     for s in range(n):
         for i in range(n):
             for j in range(i, n):
@@ -173,15 +276,16 @@ def Bound_Generation_mod(G: list, n, k):
         #         print("(", str(i), ",", str(j), "): ", LBW[i][j], "\t", end='')
         #     print("")
     print("Bound-Generation-mod complete..")
-    for i in range(n):
-        for j in range(i, n):
-            print("(", str(i), ",", str(j), "): ", UBW[i][j], "\t", end='')
-        print("")
-    print("\n")
-    for i in range(n):
-        for j in range(i, n):
-            print("(", str(i), ",", str(j), "): ", LBW[i][j], "\t", end='')
-        print("")
+    # for i in range(n):
+    #     for j in range(i, n):
+    #         print("(", str(i), ",", str(j), "): ", UBW[i][j], "\t", end='')
+    #     print("")
+    # print("\n")
+    # for i in range(n):
+    #     for j in range(i, n):
+    #         print("(", str(i), ",", str(j), "): ", LBW[i][j], "\t", end='')
+    #     print("")
+
     return UBW, LBW
 
 
@@ -203,69 +307,32 @@ def compute_cycles(UBW: list, LBW: list, n):
                     U_ii.union(Bound.Bound(path=c_path, ds=c_array))
     print("Cycles computed..\n Upper Bound")
 
-    for i in range(n):
-        for j in range(i, n):
-            print("(", str(i), ",", str(j), "): ", UBW[i][j], "\t", end='')
-        print("")
-    print("\n Lower Bound")
-    for i in range(n):
-        for j in range(i, n):
-            print("(", str(i), ",", str(j), "): ", LBW[i][j], "\t", end='')
-        print("")
-
-def construct_and_compute_linear_program(UBW, LBW, n, k):
-    print("\nStart constructing a linear program, note linprog maximizes elements wrt Ad<= b..")
-    ConstrainMatrix = []
-    Zeros = []
-    for i in range(n):
-        for B in UBW[i][i].getBounds():
-            constrain = list(B.get_array()[:])
-            constrain.append(-1)
-            if ConstrainMatrix.__contains__(constrain):
-                continue
-            ConstrainMatrix.append(constrain)
-            Zeros.append(0)
-
-    for k_ in range(k - 1):
-        constrain = [0 for _ in range(k + 1)]
-        constrain[-1] = -1
-        constrain[k_] = -1
-        constrain[k_ + 1] = 1
-        if ConstrainMatrix.__contains__(constrain):
-            continue
-        ConstrainMatrix.append(constrain)
-        Zeros.append(0)
-
-    dummy = [1 for _ in range(k + 1)]
-    print("Constrain matrix\n", np.array(ConstrainMatrix))
-    print("Zeros as upper bounds\n", list(Zeros))
-
-    variable_ranges = [(0, None) for _ in range(k + 1)]
-    # variable_ranges[k] = (0, None)
-    LinProg = linprog(dummy,
-                      A_ub=-np.array(ConstrainMatrix),
-                      b_ub=list(Zeros),
-                      bounds=variable_ranges)
-    return LinProg
-    # print("\nLinear program computed, print result: \n", np.array(LinProg.x), "\n\n")
+    # for i in range(n):
+    #     for j in range(i, n):
+    #         print("(", str(i), ",", str(j), "): ", UBW[i][j], "\t", end='')
+    #     print("")
+    # print("\n Lower Bound")
+    # for i in range(n):
+    #     for j in range(i, n):
+    #         print("(", str(i), ",", str(j), "): ", LBW[i][j], "\t", end='')
+    #     print("")
 
 
 def scale_to_readable_numbers(X: list):
     there_is_element_less_than_one = True
     NPX = np.array(X)
-    counter = 0
     while True:
         there_is_element_less_than_one = False
         for i in range(len(NPX)):
             if NPX[i] < 1:
                 there_is_element_less_than_one = True
-                counter += 1
                 break
         if there_is_element_less_than_one:
             NPX = NPX * 10
         else:
             break
     return NPX
+
 
 def compute_scalar_bounds(UBW, LBW, n, d):
     scalar_upperbd = [[sys.float_info.max for _ in range(n)] for _ in range(n)]
@@ -283,6 +350,7 @@ def compute_scalar_bounds(UBW, LBW, n, d):
                 if scalar > scalar_lowerbd[u][v]:
                     scalar_lowerbd[u][v] = scalar
     return scalar_upperbd, scalar_lowerbd
+
 
 def compute_a_uniform_embedding(scalar_upperbd, scalar_lowerbd, n):
     Pi = [0 for _ in range(n)]
