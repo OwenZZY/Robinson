@@ -6,7 +6,7 @@ from __future__ import annotations
 import numpy as np
 
 
-def cat_paths(path1_in:list, path2_in:list):
+def cat_paths(path1_in: list, path2_in: list):
     """
     The input expect an path [u,...,v] with u<v
     (so it starts from left, ends somewhere right)
@@ -30,21 +30,20 @@ def cat_paths(path1_in:list, path2_in:list):
         path2.reverse()
     if Bound.flip and Bound.concat_front:
         path1.reverse()
-    if path1[len(path1)-1] != path2[0]:
+    if path1[len(path1) - 1] != path2[0]:
         raise Exception("Mismatch path endpoints", str(path1), str(path2))
-    return path1+path2[1:]
+    return path1 + path2[1:]
+
 
 class Bound:
-
     positive_bound = []  # if upper bound + positive bound, then it is not a better upper bound.
     negative_bound = []  # if lower bound + negative bound, then it is not a better lower bound.
     zero = None
-    concat_front = False # True when k < i,j
-    concat_back = False # True when i,j < k
+    concat_front = False  # True when k < i,j
+    concat_back = False  # True when i,j < k
     concat_freely = False
     working_with_diagonal = False
     flip = False
-
 
     def divides(self, other):
         """
@@ -53,27 +52,20 @@ class Bound:
         :param other:
         :return:
         """
-        A=self.d
-        B=other.get_array()
-        previous_remainder = None
-        previous_ratio = None
-        k = len(A)
-        for t in range(k):
-            if A[t]!= 0:
-                ratio = B[t]/A[t]
-                remainder = B[t]%A[t]
-                if previous_remainder is None:
-                    previous_remainder = remainder
-                    previous_ratio = ratio
+        A = self.d
+        B = other.get_array()
 
-                if previous_remainder != remainder:
-                    return False
-                if previous_ratio != ratio:
-                    return False
-            else:
-                if B[t]!= 0:
-                    return False
-        return True
+        if not (np.dot(A, B)*np.dot(A, B) == np.dot(A, A)* np.dot(B, B)):
+            return False
+
+        firstNoneZeroEntry = 0
+        for i in range(len(A)):
+            if A[i]==0:
+                firstNoneZeroEntry += 1
+        if B[firstNoneZeroEntry]/A[firstNoneZeroEntry] > 1:
+            return True
+        return False
+
 
     def __le__(self, other):
         if self == other:
@@ -100,15 +92,15 @@ class Bound:
         return True
 
     def __eq__(self, other):
-         for i in range(self.k):
-             if self.at(i) != other.at(i):
-                 return False
-         return True
+        for i in range(self.k):
+            if self.at(i) != other.at(i):
+                return False
+        return True
 
     def at(self, index):
         return self.d[index]
 
-    def __init__(self, path:list ,ds=None, dim=0, toCpy=None):
+    def __init__(self, path: list, ds=None, dim=0, toCpy=None):
         if path is None:
             raise Exception("Path cannot be None")
         self.k = dim
@@ -125,7 +117,7 @@ class Bound:
             self.k = toCpy.dim()
 
     def cpy(self):
-        return Bound(path= self.path,ds=self.get_array())
+        return Bound(path=self.path, ds=self.get_array())
 
     def dim(self):
         return self.k
@@ -148,15 +140,15 @@ class Bound:
                          ds=ret)
         else:
             print("Not expected addition")
-            return Bound(path=[],ds=ret)
+            return Bound(path=[], ds=ret)
 
-    def __sub__(self, other:Bound):
+    def __sub__(self, other: Bound):
         if self.__add_sub_error(other) is True:
             # print("Add sub error")
             return None
         if self == Bound.zero:
             # print("Negates")
-            return Bound(path=other.path[:], ds= -other.d)
+            return Bound(path=other.path[:], ds=-other.d)
         if self.overlap_with(other):
             # print("Overlap error")
             return None
@@ -171,9 +163,11 @@ class Bound:
 
         return ret
 
-    def overlap_with(self, other:Bound):
-        if Bound.working_with_diagonal: dum = 1
-        else: dum = 0
+    def overlap_with(self, other: Bound):
+        if Bound.working_with_diagonal:
+            dum = 1
+        else:
+            dum = 0
 
         if Bound.concat_back:
             path1 = self.path[dum:]

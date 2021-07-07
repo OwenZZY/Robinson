@@ -12,8 +12,7 @@ import numpy as np
 :param n    the size of the graph 
 :param k    the number of levels in the graph
 :return Pi  the embedding of a graph
-:return d   if k!=2, then d is the computed threshold vector of a graph
-            if k==2, then d is k pairs of range
+:return d   the threshold vector
 """
 
 
@@ -22,7 +21,7 @@ def the_complete_procedure(G, n, k):
 
     UBW, LBW = Bound_Generation_mod(G, n, k)
 
-    if UBW == False:
+    if not UBW:
         return
 
     contradiction_exists = False
@@ -36,12 +35,13 @@ def the_complete_procedure(G, n, k):
 
     compute_cycles(UBW=UBW, LBW=LBW, n=n)
 
+    ConstrainMatrix = construct_the_constrain_matrix(UBW=UBW, LBW=LBW, n=n, k=k)
     # if k == 2:
     #     print("Do something")
     #     pass
     if k != 0:
         print("\nStart constructing a linear program, note linprog maximizes elements wrt -Ad<=0..")
-        LinProg = compute_linear_program(UBW, LBW, n, k)
+        LinProg = compute_linear_program(ConstrainMatrix=ConstrainMatrix, k=k)
 
         if LinProg.x[k] <= 0:
             print("No solution, z<0")
@@ -61,29 +61,47 @@ def the_complete_procedure(G, n, k):
     return Pi, d
 
 
+def add_to_constrain_matrix(ConstrainMatrix: list, newconstrain):
+    if ConstrainMatrix.__contains__(newconstrain):
+        return
+
+    removeList = []
+    newBound = Bound.Bound(path=[], ds=newconstrain[:-1])
+    for i in range(len(ConstrainMatrix)):
+        # if the bound is included or another bound divides it, then don't add
+        existingBound = Bound.Bound(path=[], ds=ConstrainMatrix[i][:-1])
+        if newBound <= existingBound or newBound.divides(existingBound):
+            removeList.append(i)
+        elif existingBound.divides(newBound):
+            print("Ha")
+            return
+        else:
+            pass
+    removeList.reverse()
+    for ind in removeList:
+        ConstrainMatrix.pop(ind)
+    ConstrainMatrix.append(newconstrain)
+
+
 def construct_the_constrain_matrix(UBW, LBW, n, k):
     ConstrainMatrix = []
     for i in range(n):
         for B in UBW[i][i].getBounds():
             constrain = list(B.get_array()[:])
             constrain.append(-1)
-            if ConstrainMatrix.__contains__(constrain):
-                continue
-            ConstrainMatrix.append(constrain)
+            add_to_constrain_matrix(ConstrainMatrix=ConstrainMatrix, newconstrain=constrain)
     for k_ in range(k - 1):
         constrain = [0 for _ in range(k + 1)]
         constrain[-1] = -1
         constrain[k_] = 1
         constrain[k_ + 1] = -1
-        if ConstrainMatrix.__contains__(constrain):
-            continue
-        ConstrainMatrix.append(constrain)
+        add_to_constrain_matrix(ConstrainMatrix=ConstrainMatrix, newconstrain=constrain)
     constrain = [0 for _ in range(k + 1)]
     constrain[-1] = -1
     constrain[-2] = 1
-    if ConstrainMatrix.__contains__(constrain):
-        pass
-    ConstrainMatrix.append(constrain)
+    add_to_constrain_matrix(ConstrainMatrix=ConstrainMatrix, newconstrain=constrain)
+
+    print(np.array(ConstrainMatrix))
     return ConstrainMatrix
 
 
